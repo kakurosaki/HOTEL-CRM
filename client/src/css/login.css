@@ -1,0 +1,26 @@
+/* Login.css */
+.login-container {
+  min-height: 100vh; /* full screen height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa; /* Bootstrap light background */
+}
+
+.login-card {
+  width: 350px;
+  height: auto; /* or fixed height if you want a square */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-card h3 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.login-card p {
+  text-align: center;
+  color: #6c757d; /* Bootstrap muted text */
+}
