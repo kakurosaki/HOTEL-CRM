@@ -6,18 +6,18 @@ const router = Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password required" });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
     }
 
-    const result = await pool.query ("SELECT * FROM staff WHERE email = $1", [email]);
+    const result = await pool.query ("SELECT * FROM staff WHERE username = $1", [username]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const staff = result.rows[0];
-    const passCompare = await bcrypt.compare(password, staff.password_hashed);
+    const passwordMatch = await bcrypt.compare(password, staff.password_hashed);
 
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
