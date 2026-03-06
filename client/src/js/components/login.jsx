@@ -1,44 +1,93 @@
-import React from "react";
-import "../../css/login.css"; // import the CSS
+import React, { useState } from "react";
+import { User, Lock } from "lucide-react";
+import "../../css/login.css";
 
-function Login() {
+function Login({ onLoginSuccess }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      // Login successful - call parent callback
+      onLoginSuccess(data.staff);
+    } catch (err) {
+      setError("Failed to connect to server");
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="login-container ">
-      <h3>Hotel CRM</h3>
-      <p>Sign in to manage your hotel</p>
-      <div className="card login-card">
-        
+    <div className="loginPage">
+      <header className="loginHeader">
+        <h1 className="h1">Hotel CRM</h1>
+        <p className="loginSubtitle">Sign in to manage your hotel</p>
+      </header>
 
-        <form>
-          <div className="mb-3">
-            <label className="form-label">Username</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter username"
-            />
+      <main className="loginCard card">
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div style={{ color: "red", marginBottom: "1rem", textAlign: "center" }}>
+              {error}
+            </div>
+          )}
+
+          <div className="field">
+            <label className="label">Username</label>
+            <div className="inputWithIcon">
+              <User className="inputIcon" size={22} />
+              <input
+                type="text"
+                className="textInput"
+                placeholder="Enter username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter password"
-            />
+          <div className="field">
+            <label className="label">Password</label>
+            <div className="inputWithIcon">
+              <Lock className="inputIcon" size={22} />
+              <input
+                type="password"
+                className="textInput"
+                placeholder="Enter password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">
-            Sign In
+          <button type="submit" className="btnPrimary" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-
-        <div className="mt-3">
-          <small className="text-muted">Demo Credentials:</small>
-          <p className="mb-0">Admin: admin / admin123</p>
-          <p className="mb-0">Staff: staff / staff123</p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

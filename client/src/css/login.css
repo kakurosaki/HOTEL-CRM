@@ -1,26 +1,130 @@
-/* Login.css */
-.login-container {
-  min-height: 100vh; /* full screen height */
+/* Layout */
+.loginPage {
+  min-height: 100vh;
+  padding: 64px 16px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background-color: #f8f9fa; /* Bootstrap light background */
+  background: var(--blue-50);
 }
 
-.login-card {
-  width: 350px;
-  height: auto; /* or fixed height if you want a square */
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.login-card h3 {
+.loginHeader {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 28px;
 }
 
-.login-card p {
-  text-align: center;
-  color: #6c757d; /* Bootstrap muted text */
+/* Typography (Style guide) */
+.h1 {
+  /* Heading 1: text-3xl text-gray-900 (but screenshot is bigger; keep 3xl-ish) */
+  margin: 0;
+  font-size: 3rem; /* ~text-5xl visually; adjust if you want strict 3xl */
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--gray-900);
+  font-weight: 800;
+}
+
+.loginSubtitle {
+  margin: 14px 0 0 0;
+  font-size: 1.125rem; /* ~text-lg */
+  color: var(--gray-600); /* Body small: gray-600 */
+  font-weight: 500;
+}
+
+/* Card */
+.card {
+  background: var(--white);
+  border-radius: 18px; /* between rounded-lg and screenshot look */
+  box-shadow: var(--shadow-card);
+}
+
+.loginCard {
+  width: min(860px, 92vw);
+  padding: 44px 56px;
+}
+
+/* Form */
+.field {
+  margin-bottom: 18px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1.25rem; /* Heading-ish */
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.inputWithIcon {
+  height: 62px;
+  border-radius: 14px;
+  border: 2px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--white);
+}
+
+.inputIcon {
+  color: #9aa4b2; /* muted icon tone */
+  flex: 0 0 auto;
+}
+
+.textInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.25rem;
+  color: var(--gray-900);
+}
+
+.textInput::placeholder {
+  color: #94a3b8;
+}
+
+/* Primary button */
+.btnPrimary {
+  margin-top: 10px;
+  width: 100%;
+  height: 64px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: var(--blue-700);
+  color: var(--white);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.btnPrimary:hover {
+  background: var(--blue-600);
+}
+
+.btnPrimary:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 640px) {
+  .loginCard {
+    padding: 28px 18px;
+  }
+
+  .h1 {
+    font-size: 2.5rem;
+  }
+
+  .label {
+    font-size: 1.125rem;
+  }
+
+  .textInput {
+    font-size: 1.125rem;
+  }
+
+  .btnPrimary {
+    font-size: 1.25rem;
+  }
 }
