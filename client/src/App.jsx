@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./js/components/login";
 import DashboardLayout from "./js/components/dashboardLayout";
 
-import DashboardPage from "./js/pages/dashboard";
+import DashboardPage from "./js/pages/DashboardPage";
 import GuestsPage from "./js/pages/GuestsPage";
 import BookingsPage from "./js/pages/BookingsPage";
 import RoomsPage from "./js/pages/RoomsPage";
@@ -20,7 +20,7 @@ export default function App() {
   const handleLogout = () => {
     setStaff(null);
   };
-
+  
   if (!staff) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }

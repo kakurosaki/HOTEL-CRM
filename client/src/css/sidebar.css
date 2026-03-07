@@ -1,0 +1,65 @@
+.crmLayout {
+  min-height: 100vh;
+  display: flex;
+  background: #f2f7ff;
+}
+
+.crmSidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+}
+
+.crmBrand {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.crmNav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.crmNavItem {
+  display: block;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.crmNavItem:hover {
+  background: #f3f4f6;
+}
+
+.crmNavItem.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.crmLogout {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #1d4ed8;
+  color: #fff;
+  font-weight: 800;
+}
+
+.crmMain {
+  flex: 1;
+  padding: 24px;
+}
+
+.crmSidebarBottom {
+  margin-top: auto;
+}
