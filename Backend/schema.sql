@@ -1,5 +1,11 @@
--- Create tables
-CREATE TABLE IF NOT EXISTS staff (
+-- Drop existing tables if they exist (to start fresh)
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS rooms CASCADE;
+DROP TABLE IF EXISTS guests CASCADE;
+DROP TABLE IF EXISTS staff CASCADE;
+
+-- Create staff table
+CREATE TABLE staff (
   id SERIAL PRIMARY KEY,
   username VARCHAR(100) UNIQUE NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
@@ -9,15 +15,17 @@ CREATE TABLE IF NOT EXISTS staff (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS guests (
+-- Create guests table
+CREATE TABLE guests (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  email VARCHAR(100) UNIQUE,
+  email VARCHAR(100) UNIQUE NOT NULL,
   phone VARCHAR(20),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS rooms (
+-- Create rooms table
+CREATE TABLE rooms (
   id SERIAL PRIMARY KEY,
   room_number VARCHAR(10) UNIQUE NOT NULL,
   room_type VARCHAR(50),
@@ -26,10 +34,11 @@ CREATE TABLE IF NOT EXISTS rooms (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS bookings (
+-- Create bookings table
+CREATE TABLE bookings (
   id SERIAL PRIMARY KEY,
-  guest_id INTEGER NOT NULL REFERENCES guests(id),
-  room_id INTEGER NOT NULL REFERENCES rooms(id),
+  guest_id INTEGER NOT NULL REFERENCES guests(id) ON DELETE CASCADE,
+  room_id INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
   check_in_date DATE NOT NULL,
   check_out_date DATE NOT NULL,
   total_price DECIMAL(10, 2),
@@ -37,41 +46,40 @@ CREATE TABLE IF NOT EXISTS bookings (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Seed staff
-INSERT INTO staff (username, email, password_hashed, name, role) VALUES 
-('admin', 'admin@hotel.com', '$2a$10$NJJR.8Sxm0xh5F5v5KqC/.5YC7X3Z0UZlDvR5Y5Hu5M5Z5Z5Z5Z5Z', 'Admin User', 'admin')
-ON CONFLICT (username) DO NOTHING;
+-- Seed staff table
+INSERT INTO staff (username, email, password_hashed, name, role) 
+VALUES ('admin', 'admin@hotel.com', '$2a$10$NJJR.8Sxm0xh5F5v5KqC/.5YC7X3Z0UZlDvR5Y5Hu5M5Z5Z5Z5Z5Z', 'Admin User', 'admin');
 
--- Seed guests
-INSERT INTO guests (name, email, phone) VALUES
-('Sarah Johnson', 'sarah.j@email.com', '+1 (555) 123-4567'),
-('Michael Chen', 'mchen@email.com', '+1 (555) 234-5678'),
-('Emily Rodriguez', 'emily.r@email.com', '+1 (555) 345-6789'),
-('David Kim', 'dkim@email.com', '+1 (555) 456-7890'),
-('Jessica Brown', 'jbrown@email.com', '+1 (555) 567-8901')
-ON CONFLICT (email) DO NOTHING;
+-- Seed guests table
+INSERT INTO guests (name, email, phone) 
+VALUES 
+  ('Sarah Johnson', 'sarah.j@email.com', '+1 (555) 123-4567'),
+  ('Michael Chen', 'mchen@email.com', '+1 (555) 234-5678'),
+  ('Emily Rodriguez', 'emily.r@email.com', '+1 (555) 345-6789'),
+  ('David Kim', 'dkim@email.com', '+1 (555) 456-7890'),
+  ('Jessica Brown', 'jbrown@email.com', '+1 (555) 567-8901');
 
--- Seed rooms
-INSERT INTO rooms (room_number, room_type, price_per_night, status) VALUES
-('101', 'Standard', 120.00, 'available'),
-('102', 'Standard', 120.00, 'available'),
-('201', 'Deluxe', 180.00, 'occupied'),
-('202', 'Deluxe', 180.00, 'cleaning'),
-('203', 'Deluxe', 180.00, 'available'),
-('301', 'Suite', 250.00, 'available'),
-('302', 'Suite', 250.00, 'maintenance'),
-('303', 'Suite', 250.00, 'available'),
-('304', 'Suite', 250.00, 'available'),
-('305', 'Suite', 250.00, 'occupied'),
-('401', 'Presidential', 500.00, 'available'),
-('402', 'Presidential', 500.00, 'available')
-ON CONFLICT (room_number) DO NOTHING;
+-- Seed rooms table
+INSERT INTO rooms (room_number, room_type, price_per_night, status) 
+VALUES
+  ('101', 'Standard', 120.00, 'available'),
+  ('102', 'Standard', 120.00, 'available'),
+  ('201', 'Deluxe', 180.00, 'occupied'),
+  ('202', 'Deluxe', 180.00, 'cleaning'),
+  ('203', 'Deluxe', 180.00, 'available'),
+  ('301', 'Suite', 250.00, 'available'),
+  ('302', 'Suite', 250.00, 'maintenance'),
+  ('303', 'Suite', 250.00, 'available'),
+  ('304', 'Suite', 250.00, 'available'),
+  ('305', 'Suite', 250.00, 'occupied'),
+  ('401', 'Presidential', 500.00, 'available'),
+  ('402', 'Presidential', 500.00, 'available');
 
--- Seed bookings
-INSERT INTO bookings (guest_id, room_id, check_in_date, check_out_date, total_price, status) VALUES
-(1, 3, '2026-03-01', '2026-03-05', 600.00, 'confirmed'),
-(2, 5, '2026-02-28', '2026-03-03', 750.00, 'confirmed'),
-(3, 2, '2026-03-05', '2026-03-08', 450.00, 'confirmed'),
-(4, 6, '2026-03-07', '2026-03-10', 750.00, 'pending'),
-(5, 8, '2026-03-02', '2026-03-06', 680.00, 'confirmed')
-ON CONFLICT DO NOTHING;
+-- Seed bookings table
+INSERT INTO bookings (guest_id, room_id, check_in_date, check_out_date, total_price, status) 
+VALUES
+  (1, 3, '2026-03-01', '2026-03-05', 600.00, 'confirmed'),
+  (2, 5, '2026-02-28', '2026-03-03', 750.00, 'confirmed'),
+  (3, 2, '2026-03-05', '2026-03-08', 450.00, 'confirmed'),
+  (4, 6, '2026-03-07', '2026-03-10', 750.00, 'pending'),
+  (5, 8, '2026-03-02', '2026-03-06', 680.00, 'confirmed');
