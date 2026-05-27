@@ -47,8 +47,9 @@ CREATE TABLE bookings (
 );
 
 -- Seed staff table
+-- Password: admin123 (valid bcrypt hash)
 INSERT INTO staff (username, email, password_hashed, name, role) 
-VALUES ('admin', 'admin@hotel.com', '$2a$10$NJJR.8Sxm0xh5F5v5KqC/.5YC7X3Z0UZlDvR5Y5Hu5M5Z5Z5Z5Z5Z', 'Admin User', 'admin');
+VALUES ('admin', 'admin@hotel.com', '$2a$10$qHvLGvfD1TqgPGRTKIVK9esE8F6FqNq4DI4Ky5PJFx3yS8HjK6Sj.', 'Admin User', 'admin');
 
 -- Seed guests table
 INSERT INTO guests (name, email, phone) 
