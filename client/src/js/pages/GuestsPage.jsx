@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search } from "lucide-react";
+import { Mail, Phone, Plus, Search } from "lucide-react";
 import AddGuestModal from "../components/AddGuestModal";
 import "../../css/guests.css";
 
@@ -22,7 +22,9 @@ export default function GuestsPage() {
         (guest) =>
           guest.name.toLowerCase().includes(search.toLowerCase()) ||
           guest.email.toLowerCase().includes(search.toLowerCase()) ||
-          (guest.phone && guest.phone.includes(search))
+          (guest.phone && guest.phone.includes(search)) ||
+          String(guest.room_number || "").includes(search) ||
+          String(guest.status || "").toLowerCase().includes(search.toLowerCase())
       );
       setFilteredGuests(filtered);
     }
@@ -41,8 +43,14 @@ export default function GuestsPage() {
     }
   };
 
-  const handleAddGuest = (newGuest) => {
-    setGuests([newGuest, ...guests]);
+  const handleAddGuest = () => {
+    fetchGuests();
+  };
+
+  const getStatusStyles = (status) => {
+    if (status === "checked-in") return { backgroundColor: "#10b981", color: "white" };
+    if (status === "reserved") return { backgroundColor: "#3b82f6", color: "white" };
+    return { backgroundColor: "#9ca3af", color: "white" };
   };
 
   return (
@@ -112,15 +120,45 @@ export default function GuestsPage() {
               <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                 <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>GUEST</th>
                 <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>CONTACT</th>
-                <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>PHONE</th>
+                <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>ROOM</th>
+                <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>CHECK-IN</th>
+                <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>CHECK-OUT</th>
+                <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>STATUS</th>
               </tr>
             </thead>
             <tbody>
               {filteredGuests.map((guest) => (
                 <tr key={guest.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
                   <td style={{ padding: "1rem" }}>{guest.name}</td>
-                  <td style={{ padding: "1rem" }}>{guest.email}</td>
-                  <td style={{ padding: "1rem" }}>{guest.phone || "N/A"}</td>
+                  <td style={{ padding: "1rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <Mail size={14} color="#64748b" />
+                        <span>{guest.email}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <Phone size={14} color="#64748b" />
+                        <span>{guest.phone}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: "1rem" }}>Room {guest.room_number}</td>
+                  <td style={{ padding: "1rem" }}>{guest.check_in_date}</td>
+                  <td style={{ padding: "1rem" }}>{guest.check_out_date}</td>
+                  <td style={{ padding: "1rem" }}>
+                    <span
+                      style={{
+                        ...getStatusStyles(guest.status),
+                        padding: "0.25rem 0.75rem",
+                        borderRadius: "9999px",
+                        fontSize: "0.85rem",
+                        fontWeight: "600",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {guest.status}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

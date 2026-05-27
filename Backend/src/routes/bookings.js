@@ -37,15 +37,26 @@ router.get("/:id", async (req, res) => {
 // Create booking
 router.post("/", async (req, res) => {
   try {
-    const { guest_id, room_id, check_in_date, check_out_date, total_price, status } = req.body;
+    const {
+      guest_id,
+      room_id,
+      check_in_date,
+      check_in_time,
+      check_out_date,
+      check_out_time,
+      total_price,
+      status,
+    } = req.body;
 
-    if (!guest_id || !room_id || !check_in_date || !check_out_date) {
+    if (!guest_id || !room_id || !check_in_date || !check_in_time || !check_out_date || !check_out_time) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
     const result = await pool.query(
-      "INSERT INTO bookings (guest_id, room_id, check_in_date, check_out_date, total_price, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [guest_id, room_id, check_in_date, check_out_date, total_price || null, status || "confirmed"]
+      `INSERT INTO bookings (
+        guest_id, room_id, check_in_date, check_in_time, check_out_date, check_out_time, total_price, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [guest_id, room_id, check_in_date, check_in_time, check_out_date, check_out_time, total_price || null, status || "confirmed"]
     );
 
     res.status(201).json(result.rows[0]);
