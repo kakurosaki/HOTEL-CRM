@@ -34,7 +34,14 @@ router.post("/", async (req, res) => {
 
     console.log(`✅ Login successful for user: ${username}`);
     const { password_hashed, ...staffData } = staff;
-    res.json({ message: "Login successful", staff: staffData });
+    res.json({
+      message: "Login successful",
+      staff: {
+        ...staffData,
+        check_in_time: null,
+        check_out_time: null,
+      },
+    });
 
   } catch (error) {
     console.error("❌ Login error:", error);
@@ -50,7 +57,11 @@ router.get("/:id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Staff not found" });
     }
-    res.json(result.rows[0]);
+    res.json({
+      ...result.rows[0],
+      check_in_time: null,
+      check_out_time: null,
+    });
 
   } catch (error) {
     console.error("Error fetching staff:", error);

@@ -7,7 +7,9 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
     guest_id: "",
     room_id: "",
     check_in_date: "",
+    check_in_time: "",
     check_out_date: "",
+    check_out_time: "",
     status: "confirmed",
   });
   const [guests, setGuests] = useState([]);
@@ -37,7 +39,7 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
     try {
       const response = await fetch("/api/rooms");
       const data = await response.json();
-      setRooms(data);
+      setRooms(data.rooms || []);
     } catch (err) {
       console.error("Error fetching rooms:", err);
     }
@@ -74,8 +76,20 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
       return;
     }
 
+    if (!formData.check_in_time) {
+      setError("Check-in time is required");
+      setLoading(false);
+      return;
+    }
+
     if (!formData.check_out_date) {
       setError("Check-out date is required");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.check_out_time) {
+      setError("Check-out time is required");
       setLoading(false);
       return;
     }
@@ -94,7 +108,9 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
           guest_id: parseInt(formData.guest_id),
           room_id: parseInt(formData.room_id),
           check_in_date: formData.check_in_date,
+          check_in_time: formData.check_in_time,
           check_out_date: formData.check_out_date,
+          check_out_time: formData.check_out_time,
           status: formData.status,
         }),
       });
@@ -181,12 +197,36 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           <div className="formGroup">
+            <label htmlFor="check_in_time">Check-in Time *</label>
+            <input
+              id="check_in_time"
+              type="time"
+              name="check_in_time"
+              value={formData.check_in_time}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="formGroup">
             <label htmlFor="check_out_date">Check-out Date *</label>
             <input
               id="check_out_date"
               type="date"
               name="check_out_date"
               value={formData.check_out_date}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="formGroup">
+            <label htmlFor="check_out_time">Check-out Time *</label>
+            <input
+              id="check_out_time"
+              type="time"
+              name="check_out_time"
+              value={formData.check_out_time}
               onChange={handleChange}
               disabled={loading}
             />

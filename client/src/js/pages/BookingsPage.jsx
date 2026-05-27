@@ -53,8 +53,8 @@ export default function BookingsPage() {
     setFilteredBookings(filtered);
   };
 
-  const handleAddBooking = (newBooking) => {
-    setBookings([newBooking, ...bookings]);
+  const handleAddBooking = () => {
+    fetchBookings();
   };
 
   const getStatusColor = (status) => {
@@ -174,8 +174,14 @@ export default function BookingsPage() {
                     <td style={{ padding: "1rem" }}>#{booking.id}</td>
                     <td style={{ padding: "1rem" }}>{booking.guest_name}</td>
                     <td style={{ padding: "1rem" }}>{booking.room_number}</td>
-                    <td style={{ padding: "1rem" }}>{booking.check_in_date}</td>
-                    <td style={{ padding: "1rem" }}>{booking.check_out_date}</td>
+                    <td style={{ padding: "1rem" }}>
+                      <div>{booking.check_in_date}</div>
+                      <div style={{ color: "#64748b", fontSize: "0.85rem" }}>{booking.check_in_time}</div>
+                    </td>
+                    <td style={{ padding: "1rem" }}>
+                      <div>{booking.check_out_date}</div>
+                      <div style={{ color: "#64748b", fontSize: "0.85rem" }}>{booking.check_out_time}</div>
+                    </td>
                     <td style={{ padding: "1rem" }}>{nights}</td>
                     <td style={{ padding: "1rem" }}>${booking.total_price || "N/A"}</td>
                     <td style={{ padding: "1rem" }}>
