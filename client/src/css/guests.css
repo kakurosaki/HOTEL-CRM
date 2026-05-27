@@ -1,0 +1,12 @@
+/* Guests page styles */
+table {
+  font-size: 0.95rem;
+}
+
+tr:hover {
+  background-color: #f8fafc;
+}
+
+td {
+  color: #475569;
+}
