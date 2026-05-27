@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
 import loginRouter from "./routes/login.js";
 import guestsRouter from "./routes/guests.js";
 import bookingsRouter from "./routes/bookings.js";
@@ -10,9 +11,16 @@ import dashboardRouter from "./routes/dashboard.js";
 dotenv.config();
 
 const app = express();
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 app.use(cors());
 app.use(express.json());
+app.use("/api", apiLimiter);
 
 // Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
