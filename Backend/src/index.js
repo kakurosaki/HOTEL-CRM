@@ -25,4 +25,12 @@ app.use("/api/rooms", roomsRouter);
 app.use("/api/dashboard", dashboardRouter);
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`API running on port ${port}`));
+app.listen(port, () => {
+  console.log(`✅ API running on port ${port}`);
+  console.log(`📝 Environment: DATABASE_URL = ${process.env.DATABASE_URL}`);
+});
+
+// Error handling
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("❌ Unhandled Rejection at:", promise, "reason:", reason);
+});
