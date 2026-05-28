@@ -17,6 +17,7 @@ export default function BookingsPage() {
   const [editingBookingId, setEditingBookingId] = useState(null);
   const [editingStatus, setEditingStatus] = useState("confirmed");
   const [cancelBooking, setCancelBooking] = useState(null);
+  const [viewBooking, setViewBooking] = useState(null);
 
   useEffect(() => {
     fetchBookings();
@@ -330,6 +331,13 @@ export default function BookingsPage() {
                              Edit
                            </button>
                            <button
+                             onClick={() => setViewBooking(booking)}
+                             disabled={actionLoadingId === booking.id}
+                             style={{ border: "1px solid #cbd5e1", backgroundColor: "white", color: "#334155", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
+                           >
+                             View
+                           </button>
+                           <button
                              onClick={() => {
                                setActionError("");
                                setCancelBooking(booking);
@@ -387,6 +395,28 @@ export default function BookingsPage() {
           updateBookingStatus(booking.id, "cancelled", { closeCancel: true })
         }
       />
+      {viewBooking && (
+        <div className="modalOverlay" onClick={() => setViewBooking(null)}>
+          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+            <div className="modalHeader">
+              <h2>Booking #{viewBooking.id}</h2>
+            </div>
+            <div style={{ display: "grid", gap: "0.5rem", color: "#334155" }}>
+              <div><strong>Guest:</strong> {viewBooking.guest_name}</div>
+              <div><strong>Room:</strong> {viewBooking.room_number}</div>
+              <div><strong>Check-in:</strong> {viewBooking.check_in_date} {viewBooking.check_in_time}</div>
+              <div><strong>Check-out:</strong> {viewBooking.check_out_date} {viewBooking.check_out_time}</div>
+              <div><strong>Total:</strong> ${viewBooking.total_price || "N/A"}</div>
+              <div><strong>Status:</strong> {formatStatus(viewBooking.status)}</div>
+            </div>
+            <div className="modalFooter">
+              <button type="button" className="btnCancel" onClick={() => setViewBooking(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
