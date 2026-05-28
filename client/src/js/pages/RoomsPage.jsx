@@ -20,10 +20,12 @@ export default function RoomsPage() {
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsMode, setSettingsMode] = useState(null); // "add", "edit", "delete"
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [editingRoom, setEditingRoom] = useState(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [selectedDeleteRoom, setSelectedDeleteRoom] = useState(null);
   const [formData, setFormData] = useState({
     room_number: "",
     room_type: "Standard",
@@ -76,7 +78,7 @@ export default function RoomsPage() {
   const handleAddRoom = async (e) => {
     e.preventDefault();
     
-    if (!formData.room_number || !formData.room_type || !formData.price_per_night) {
+    if (!formData.room_number || !formData.room_type || !formData.price_per_night || !formData.status) {
       alert("All fields are required");
       return;
     }
@@ -88,7 +90,8 @@ export default function RoomsPage() {
         body: JSON.stringify({
           room_number: formData.room_number,
           room_type: formData.room_type,
-          price_per_night: parseFloat(formData.price_per_night)
+          price_per_night: parseFloat(formData.price_per_night),
+          status: formData.status
         })
       });
 
@@ -97,6 +100,7 @@ export default function RoomsPage() {
         setShowAddModal(false);
         fetchRooms();
         fetchStats();
+        alert("Room added successfully!");
       } else {
         alert("Error adding room");
       }
@@ -109,7 +113,7 @@ export default function RoomsPage() {
   const handleEditRoom = async (e) => {
     e.preventDefault();
     
-    if (!formData.room_number || !formData.room_type || !formData.price_per_night) {
+    if (!formData.room_number || !formData.room_type || !formData.price_per_night || !formData.status) {
       alert("All fields are required");
       return;
     }
@@ -130,8 +134,10 @@ export default function RoomsPage() {
         setFormData({ room_number: "", room_type: "Standard", price_per_night: "", status: "available" });
         setShowEditModal(false);
         setEditingRoom(null);
+        setSettingsMode(null);
         fetchRooms();
         fetchStats();
+        alert("Room updated successfully!");
       } else {
         alert("Error updating room");
       }
@@ -141,16 +147,24 @@ export default function RoomsPage() {
     }
   };
 
-  const handleDeleteRoom = async (roomId) => {
+  const handleDeleteRoom = async () => {
+    if (deleteConfirmText !== `delete ${selectedDeleteRoom.room_number}`) {
+      alert(`Please type "delete ${selectedDeleteRoom.room_number}" to confirm`);
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/rooms/${roomId}`, {
+      const response = await fetch(`/api/rooms/${selectedDeleteRoom.id}`, {
         method: "DELETE"
       });
 
       if (response.ok) {
-        setDeleteConfirm(null);
+        setDeleteConfirmText("");
+        setSelectedDeleteRoom(null);
+        setSettingsMode(null);
         fetchRooms();
         fetchStats();
+        alert("Room deleted successfully!");
       } else {
         alert("Error deleting room");
       }
@@ -206,7 +220,10 @@ export default function RoomsPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <h1>Rooms</h1>
         <button
-          onClick={() => setShowSettings(true)}
+          onClick={() => {
+            setShowSettings(true);
+            setSettingsMode(null);
+          }}
           style={{
             padding: "0.75rem 1.5rem",
             backgroundColor: "#f3f4f6",
@@ -331,11 +348,11 @@ export default function RoomsPage() {
         </div>
       )}
 
-      {/* Room Settings Modal */}
-      {showSettings && (
+      {/* Room Settings Modal - Main Menu */}
+      {showSettings && !settingsMode && (
         <div style={modalStyle}>
           <div style={modalContentStyle}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
               <h2 style={{ marginTop: 0 }}>Room Settings</h2>
               <button
                 onClick={() => setShowSettings(false)}
@@ -350,97 +367,65 @@ export default function RoomsPage() {
               </button>
             </div>
 
-            <button
-              onClick={() => {
-                setShowAddModal(true);
-                setFormData({ room_number: "", room_type: "Standard", price_per_night: "", status: "available" });
-              }}
-              style={{
-                marginBottom: "1.5rem",
-                padding: "0.75rem 1.5rem",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600"
-              }}
-            >
-              + Add New Room
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <button
+                onClick={() => {
+                  setSettingsMode("add");
+                  setShowAddModal(true);
+                  setFormData({ room_number: "", room_type: "Standard", price_per_night: "", status: "available" });
+                }}
+                style={{
+                  padding: "1rem",
+                  backgroundColor: "#10b981",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                  fontWeight: "600"
+                }}
+              >
+                ➕ Add Room
+              </button>
 
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #e2e8f0", backgroundColor: "#f8fafc" }}>
-                    <th style={{ textAlign: "left", padding: "1rem", fontWeight: "600", color: "#64748b" }}>Room #</th>
-                    <th style={{ textAlign: "left", padding: "1rem", fontWeight: "600", color: "#64748b" }}>Type</th>
-                    <th style={{ textAlign: "left", padding: "1rem", fontWeight: "600", color: "#64748b" }}>Price</th>
-                    <th style={{ textAlign: "left", padding: "1rem", fontWeight: "600", color: "#64748b" }}>Status</th>
-                    <th style={{ textAlign: "center", padding: "1rem", fontWeight: "600", color: "#64748b" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rooms.map((room) => (
-                    <tr key={room.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                      <td style={{ padding: "1rem" }}>{room.room_number}</td>
-                      <td style={{ padding: "1rem" }}>{room.room_type}</td>
-                      <td style={{ padding: "1rem" }}>${room.price_per_night}</td>
-                      <td style={{ padding: "1rem" }}>
-                        <span
-                          style={{
-                            backgroundColor: statusColorMap[room.status].bg,
-                            color: statusColorMap[room.status].text,
-                            padding: "0.25rem 0.75rem",
-                            borderRadius: "9999px",
-                            fontSize: "0.875rem",
-                            textTransform: "capitalize"
-                          }}
-                        >
-                          {room.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: "1rem", textAlign: "center" }}>
-                        <button
-                          onClick={() => openEditModal(room)}
-                          style={{
-                            marginRight: "0.5rem",
-                            padding: "0.5rem 0.75rem",
-                            backgroundColor: "#f59e0b",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "0.875rem"
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(room.id)}
-                          style={{
-                            padding: "0.5rem 0.75rem",
-                            backgroundColor: "#ef4444",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "0.875rem"
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <button
+                onClick={() => setSettingsMode("edit")}
+                style={{
+                  padding: "1rem",
+                  backgroundColor: "#f59e0b",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                  fontWeight: "600"
+                }}
+              >
+                ✏️ Edit Room
+              </button>
+
+              <button
+                onClick={() => setSettingsMode("delete")}
+                style={{
+                  padding: "1rem",
+                  backgroundColor: "#ef4444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                  fontWeight: "600"
+                }}
+              >
+                🗑️ Delete Room
+              </button>
             </div>
 
             <button
               onClick={() => setShowSettings(false)}
               style={{
-                marginTop: "1.5rem",
+                marginTop: "2rem",
+                width: "100%",
                 padding: "0.75rem 1.5rem",
                 backgroundColor: "#e5e7eb",
                 border: "none",
@@ -488,7 +473,7 @@ export default function RoomsPage() {
                 </select>
               </div>
 
-              <div style={{ marginBottom: "1.5rem" }}>
+              <div style={{ marginBottom: "1rem" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>Price per Night ($) *</label>
                 <input
                   type="number"
@@ -501,10 +486,29 @@ export default function RoomsPage() {
                 />
               </div>
 
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>Status *</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  style={{ width: "100%", padding: "0.5rem", border: "1px solid #e2e8f0", borderRadius: "4px", boxSizing: "border-box" }}
+                >
+                  {roomStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
                 <button
                   type="button"
-                  onClick={closeModals}
+                  onClick={() => {
+                    closeModals();
+                    setShowSettings(true);
+                    setSettingsMode(null);
+                  }}
                   style={{
                     padding: "0.75rem 1.5rem",
                     border: "1px solid #e2e8f0",
@@ -520,7 +524,7 @@ export default function RoomsPage() {
                   type="submit"
                   style={{
                     padding: "0.75rem 1.5rem",
-                    backgroundColor: "#3b82f6",
+                    backgroundColor: "#10b981",
                     color: "white",
                     border: "none",
                     borderRadius: "4px",
@@ -537,11 +541,79 @@ export default function RoomsPage() {
         </div>
       )}
 
+      {/* Edit Room - Select Room */}
+      {showSettings && settingsMode === "edit" && !showEditModal && (
+        <div style={modalStyle}>
+          <div style={modalContentStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h2 style={{ marginTop: 0 }}>Select Room to Edit</h2>
+              <button
+                onClick={() => {
+                  setSettingsMode(null);
+                  setShowSettings(true);
+                }}
+                style={{
+                  fontSize: "1.5rem",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", maxHeight: "400px", overflowY: "auto" }}>
+              {rooms.map((room) => (
+                <button
+                  key={room.id}
+                  onClick={() => openEditModal(room)}
+                  style={{
+                    padding: "1rem",
+                    backgroundColor: "white",
+                    border: `2px solid ${statusColorMap[room.status].bg}`,
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = "#f8fafc"}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = "white"}
+                >
+                  <div style={{ fontWeight: "600", marginBottom: "0.5rem" }}>Room {room.room_number}</div>
+                  <div style={{ fontSize: "0.9rem", color: "#64748b" }}>{room.room_type}</div>
+                  <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>${room.price_per_night}/night</div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setSettingsMode(null);
+                setShowSettings(true);
+              }}
+              style={{
+                marginTop: "1.5rem",
+                width: "100%",
+                padding: "0.75rem",
+                backgroundColor: "#e5e7eb",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600"
+              }}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Edit Room Modal */}
       {showEditModal && (
         <div style={modalStyle}>
           <div style={modalContentStyle}>
-            <h2 style={{ marginTop: 0 }}>Edit Room</h2>
+            <h2 style={{ marginTop: 0 }}>Edit Room {editingRoom.room_number}</h2>
             <form onSubmit={handleEditRoom}>
               <div style={{ marginBottom: "1rem" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>Room Number *</label>
@@ -599,7 +671,11 @@ export default function RoomsPage() {
               <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
                 <button
                   type="button"
-                  onClick={closeModals}
+                  onClick={() => {
+                    closeModals();
+                    setShowSettings(true);
+                    setSettingsMode("edit");
+                  }}
                   style={{
                     padding: "0.75rem 1.5rem",
                     border: "1px solid #e2e8f0",
@@ -632,18 +708,108 @@ export default function RoomsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
+      {/* Delete Room - Select Room */}
+      {showSettings && settingsMode === "delete" && !selectedDeleteRoom && (
         <div style={modalStyle}>
-          <div style={{ ...modalContentStyle, maxWidth: "400px" }}>
-            <h2 style={{ marginTop: 0 }}>Delete Room?</h2>
-            <p style={{ marginBottom: "1.5rem", color: "#64748b" }}>
-              Are you sure you want to delete this room? This action cannot be undone.
+          <div style={modalContentStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h2 style={{ marginTop: 0 }}>Select Room to Delete</h2>
+              <button
+                onClick={() => {
+                  setSettingsMode(null);
+                  setShowSettings(true);
+                }}
+                style={{
+                  fontSize: "1.5rem",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer"
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", maxHeight: "400px", overflowY: "auto" }}>
+              {rooms.map((room) => (
+                <button
+                  key={room.id}
+                  onClick={() => setSelectedDeleteRoom(room)}
+                  style={{
+                    padding: "1rem",
+                    backgroundColor: "white",
+                    border: "2px solid #ef4444",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = "#fef2f2"}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = "white"}
+                >
+                  <div style={{ fontWeight: "600", marginBottom: "0.5rem" }}>Room {room.room_number}</div>
+                  <div style={{ fontSize: "0.9rem", color: "#64748b" }}>{room.room_type}</div>
+                  <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>${room.price_per_night}/night</div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setSettingsMode(null);
+                setShowSettings(true);
+              }}
+              style={{
+                marginTop: "1.5rem",
+                width: "100%",
+                padding: "0.75rem",
+                backgroundColor: "#e5e7eb",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600"
+              }}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Room Confirmation */}
+      {selectedDeleteRoom && (
+        <div style={modalStyle}>
+          <div style={{ ...modalContentStyle, maxWidth: "500px" }}>
+            <h2 style={{ marginTop: 0 }}>Delete Room {selectedDeleteRoom.room_number}?</h2>
+            <p style={{ color: "#64748b", marginBottom: "1rem" }}>
+              This action cannot be undone. Type <strong>delete {selectedDeleteRoom.room_number}</strong> to confirm deletion.
             </p>
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder={`delete ${selectedDeleteRoom.room_number}`}
+                style={{ 
+                  width: "100%", 
+                  padding: "0.75rem", 
+                  border: "1px solid #e2e8f0", 
+                  borderRadius: "4px", 
+                  boxSizing: "border-box",
+                  fontSize: "1rem"
+                }}
+              />
+            </div>
 
             <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
               <button
-                onClick={() => setDeleteConfirm(null)}
+                onClick={() => {
+                  setSelectedDeleteRoom(null);
+                  setDeleteConfirmText("");
+                  setShowSettings(true);
+                  setSettingsMode("delete");
+                }}
                 style={{
                   padding: "0.75rem 1.5rem",
                   border: "1px solid #e2e8f0",
@@ -656,7 +822,7 @@ export default function RoomsPage() {
                 Cancel
               </button>
               <button
-                onClick={() => handleDeleteRoom(deleteConfirm)}
+                onClick={handleDeleteRoom}
                 style={{
                   padding: "0.75rem 1.5rem",
                   backgroundColor: "#ef4444",
