@@ -1,95 +1,189 @@
 import React, { useEffect, useState } from "react";
 
-const typeOptions = ["all", "Standard", "Deluxe", "Suite", "Presidential"];
-const statusOptions = ["all", "available", "occupied", "cleaning", "maintenance"];
-
-const statusColors = {
-  available: "#10b981",
-  occupied: "#ef4444",
-  cleaning: "#eab308",
-  maintenance: "#f97316",
+const statusColorMap = {
+  available: { bg: "#10b981", text: "white", dot: "#10b981" },
+  occupied: { bg: "#ef4444", text: "white", dot: "#ef4444" },
+  cleaning: { bg: "#eab308", text: "white", dot: "#eab308" },
+  maintenance: { bg: "#f97316", text: "white", dot: "#f97316" }
 };
 
 export default function RoomsPage() {
   const [rooms, setRooms] = useState([]);
-  const [summary, setSummary] = useState({ available: 0, occupied: 0, cleaning: 0, maintenance: 0 });
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [stats, setStats] = useState({
+    available: 0,
+    occupied: 0,
+    cleaning: 0,
+    maintenance: 0,
+    total: 0
+  });
+  const [typeFilter, setTypeFilter] = useState("All Types");
+  const [statusFilter, setStatusFilter] = useState("All Status");
   const [loading, setLoading] = useState(true);
+
+  const types = ["All Types", "Standard", "Deluxe", "Suite", "Presidential"];
+  const statuses = ["All Status", "available", "occupied", "cleaning", "maintenance"];
 
   useEffect(() => {
     fetchRooms();
+    fetchStats();
   }, [typeFilter, statusFilter]);
 
   const fetchRooms = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (typeFilter !== "all") params.set("type", typeFilter);
-      if (statusFilter !== "all") params.set("status", statusFilter);
+      
+      if (typeFilter !== "All Types") {
+        params.append("type", typeFilter);
+      }
+      if (statusFilter !== "All Status") {
+        params.append("status", statusFilter);
+      }
 
-      const response = await fetch(`/api/rooms${params.toString() ? `?${params.toString()}` : ""}`);
+      const response = await fetch(`/api/rooms?${params.toString()}`);
       const data = await response.json();
-      setRooms(data.rooms || []);
-      setSummary(data.summary || { available: 0, occupied: 0, cleaning: 0, maintenance: 0 });
+      setRooms(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching rooms:", error);
-    } finally {
       setLoading(false);
     }
   };
 
-  const cardStyle = {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "1rem",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+  const fetchStats = async () => {
+    try {
+      const response = await fetch("/api/rooms/stats");
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching room stats:", error);
+    }
   };
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1 style={{ marginBottom: "1rem" }}>Rooms</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+        <h1>Rooms</h1>
+        <button
+          style={{
+            padding: "0.75rem 1.5rem",
+            backgroundColor: "#f3f4f6",
+            border: "1px solid #e5e7eb",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "1rem",
+            fontWeight: "500"
+          }}
+        >
+          Room Settings
+        </button>
+      </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} style={{ padding: "0.75rem", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
-          <option value="all">All Types</option>
-          {typeOptions.filter((x) => x !== "all").map((type) => (
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          style={{
+            padding: "0.75rem 1rem",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            minWidth: "200px",
+            cursor: "pointer"
+          }}
+        >
+          {types.map((type) => (
             <option key={type} value={type}>
               {type}
             </option>
           ))}
         </select>
 
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ padding: "0.75rem", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
-          <option value="all">All Status</option>
-          {statusOptions.filter((x) => x !== "all").map((status) => (
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{
+            padding: "0.75rem 1rem",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            minWidth: "200px",
+            cursor: "pointer"
+          }}
+        >
+          {statuses.map((status) => (
             <option key={status} value={status}>
-              {status[0].toUpperCase() + status.slice(1)}
+              {status}
             </option>
           ))}
         </select>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: "1rem", marginBottom: "1rem" }}>
-        <div style={cardStyle}><strong>Available:</strong> {summary.available}</div>
-        <div style={cardStyle}><strong>Occupied:</strong> {summary.occupied}</div>
-        <div style={cardStyle}><strong>Cleaning:</strong> {summary.cleaning}</div>
-        <div style={cardStyle}><strong>Maintenance:</strong> {summary.maintenance}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+        {["available", "occupied", "cleaning", "maintenance"].map((status) => (
+          <div key={status} style={{ backgroundColor: "white", padding: "1.5rem", borderRadius: "8px", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)" }}>
+            <div style={{ textTransform: "capitalize", fontSize: "1rem", color: "#64748b", marginBottom: "0.5rem" }}>
+              {status}
+            </div>
+            <div style={{ fontSize: "2rem", fontWeight: "700", color: statusColorMap[status].dot }}>
+              {stats[status]}
+            </div>
+          </div>
+        ))}
       </div>
 
       {loading ? (
         <p>Loading rooms...</p>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
           {rooms.map((room) => (
-            <div key={room.id} style={cardStyle}>
-              <div style={{ fontWeight: 700, marginBottom: "0.5rem" }}>🏨 Room {room.room_number}</div>
-              <div style={{ color: "#475569", marginBottom: "0.5rem" }}>{room.room_type}</div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.7rem", borderRadius: "9999px", backgroundColor: `${statusColors[room.status] || "#64748b"}22`, color: statusColors[room.status] || "#64748b", fontWeight: 600, textTransform: "capitalize", marginBottom: "0.5rem" }}>
-                <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: statusColors[room.status] || "#64748b" }} />
-                {room.status}
+            <div
+              key={room.id}
+              style={{
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "1.5rem",
+                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                borderTop: `4px solid ${statusColorMap[room.status].dot}`
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}>
+                <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>🏨</span>
+                <span style={{ fontSize: "1.25rem", fontWeight: "600" }}>Room {room.room_number}</span>
               </div>
-              <div style={{ color: "#0f172a", fontWeight: 600 }}>${room.price_per_night}/night</div>
+
+              <div style={{ marginBottom: "1rem", color: "#64748b", fontSize: "0.95rem" }}>
+                {room.room_type}
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "50%",
+                    backgroundColor: statusColorMap[room.status].dot
+                  }}
+                ></span>
+                <span
+                  style={{
+                    backgroundColor: statusColorMap[room.status].bg,
+                    color: statusColorMap[room.status].text,
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "9999px",
+                    fontSize: "0.875rem",
+                    fontWeight: "500",
+                    textTransform: "capitalize"
+                  }}
+                >
+                  {room.status}
+                </span>
+              </div>
+
+              <div style={{ fontSize: "1.25rem", fontWeight: "600", color: "#334155" }}>
+                ${room.price_per_night}/night
+              </div>
             </div>
           ))}
         </div>

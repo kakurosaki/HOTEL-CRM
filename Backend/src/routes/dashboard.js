@@ -52,7 +52,13 @@ router.get("/stats", getStats);
 const getRecentBookings = async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT b.id, g.name AS guest_name, r.room_number, b.total_price, CAST((b.check_out_date - b.check_in_date) AS INT) AS nights FROM bookings b JOIN guests g ON b.guest_id = g.id JOIN rooms r ON b.room_id = r.id ORDER BY b.created_at DESC LIMIT 5"
+      `SELECT b.id, g.name AS guest_name, r.room_number, b.total_price, 
+              CAST((b.check_out_date - b.check_in_date) AS INT) AS nights 
+       FROM bookings b 
+       JOIN guests g ON b.guest_id = g.id 
+       JOIN rooms r ON b.room_id = r.id 
+       ORDER BY b.id DESC 
+       LIMIT 5`
     );
     res.json(result.rows);
   } catch (error) {
