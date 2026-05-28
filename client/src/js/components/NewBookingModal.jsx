@@ -243,6 +243,7 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
             >
               <option value="confirmed">Confirmed</option>
               <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
 
