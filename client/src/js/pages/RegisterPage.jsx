@@ -160,7 +160,7 @@ export default function RegisterPage() {
           {/* Username Field */}
           <div className="formGroup">
             <label htmlFor="username" className="formLabel">Username</label>
-            <div className="inputWithIcon">
+            <div className="inputContainer">
               <User size={20} className="inputIcon" />
               <input
                 id="username"
@@ -178,7 +178,7 @@ export default function RegisterPage() {
           {/* Email Field */}
           <div className="formGroup">
             <label htmlFor="email" className="formLabel">Email</label>
-            <div className="inputWithIcon">
+            <div className="inputContainer">
               <Mail size={20} className="inputIcon" />
               <input
                 id="email"
@@ -196,7 +196,7 @@ export default function RegisterPage() {
           {/* Phone Number Field */}
           <div className="formGroup">
             <label htmlFor="phone" className="formLabel">Phone Number</label>
-            <div className="inputWithIcon">
+            <div className="inputContainer">
               <Phone size={20} className="inputIcon" />
               <input
                 id="phone"
@@ -234,7 +234,7 @@ export default function RegisterPage() {
           {/* Password Field */}
           <div className="formGroup">
             <label htmlFor="password" className="formLabel">Password</label>
-            <div className="inputWithIcon">
+            <div className="inputContainer">
               <Lock size={20} className="inputIcon" />
               <input
                 id="password"
@@ -252,7 +252,7 @@ export default function RegisterPage() {
           {/* Confirm Password Field */}
           <div className="formGroup">
             <label htmlFor="confirmPassword" className="formLabel">Confirm Password</label>
-            <div className="inputWithIcon">
+            <div className="inputContainer">
               <Lock size={20} className="inputIcon" />
               <input
                 id="confirmPassword"
