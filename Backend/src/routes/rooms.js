@@ -72,7 +72,7 @@ router.get("/:id", async (req, res) => {
 // POST create room
 router.post("/", async (req, res) => {
   try {
-    const { room_number, room_type, price_per_night } = req.body;
+    const { room_number, room_type, price_per_night, status } = req.body;
 
     if (!room_number || !room_type || !price_per_night) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -80,9 +80,9 @@ router.post("/", async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO rooms (room_number, room_type, price_per_night, status)
-       VALUES ($1, $2, $3, 'available')
+       VALUES ($1, $2, $3, $4)
        RETURNING id, room_number, room_type, price_per_night, status`,
-      [room_number, room_type, price_per_night]
+      [room_number, room_type, price_per_night, status || 'available']
     );
 
     res.status(201).json(result.rows[0]);
@@ -119,6 +119,27 @@ router.put("/:id", async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Error updating room:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// DELETE room
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await pool.query(
+      "DELETE FROM rooms WHERE id = $1 RETURNING id",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Room not found" });
+    }
+
+    res.json({ message: "Room deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting room:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
