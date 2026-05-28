@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { User, Mail, Phone, Lock, UserCheck } from "lucide-react";
 import "../../css/register.css";
 
 export default function RegisterPage() {
@@ -138,7 +137,11 @@ export default function RegisterPage() {
       <div className="registerContent">
         <div className="registerHeader">
           <div className="registerIcon">
-            <UserCheck size={32} />
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+              <path d="M16 11h6"></path>
+            </svg>
           </div>
           <h1>Register New User</h1>
           <p className="registerSubtitle">Add new staff or admin users to the system</p>
@@ -160,54 +163,45 @@ export default function RegisterPage() {
           {/* Username Field */}
           <div className="formGroup">
             <label htmlFor="username" className="formLabel">Username</label>
-            <div className="inputContainer">
-              <User size={20} className="inputIcon" />
-              <input
-                id="username"
-                type="text"
-                name="username"
-                placeholder="Enter username"
-                value={formData.username}
-                onChange={handleChange}
-                className={`formInput ${errors.username ? "inputError" : ""}`}
-              />
-            </div>
+            <input
+              id="username"
+              type="text"
+              name="username"
+              placeholder="Enter username"
+              value={formData.username}
+              onChange={handleChange}
+              className={`formInput ${errors.username ? "inputError" : ""}`}
+            />
             {errors.username && <span className="errorText">{errors.username}</span>}
           </div>
 
           {/* Email Field */}
           <div className="formGroup">
             <label htmlFor="email" className="formLabel">Email</label>
-            <div className="inputContainer">
-              <Mail size={20} className="inputIcon" />
-              <input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Enter email address"
-                value={formData.email}
-                onChange={handleChange}
-                className={`formInput ${errors.email ? "inputError" : ""}`}
-              />
-            </div>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Enter email address"
+              value={formData.email}
+              onChange={handleChange}
+              className={`formInput ${errors.email ? "inputError" : ""}`}
+            />
             {errors.email && <span className="errorText">{errors.email}</span>}
           </div>
 
           {/* Phone Number Field */}
           <div className="formGroup">
             <label htmlFor="phone" className="formLabel">Phone Number</label>
-            <div className="inputContainer">
-              <Phone size={20} className="inputIcon" />
-              <input
-                id="phone"
-                type="tel"
-                name="phone"
-                placeholder="Enter phone number"
-                value={formData.phone}
-                onChange={handleChange}
-                className={`formInput ${errors.phone ? "inputError" : ""}`}
-              />
-            </div>
+            <input
+              id="phone"
+              type="tel"
+              name="phone"
+              placeholder="Enter phone number"
+              value={formData.phone}
+              onChange={handleChange}
+              className={`formInput ${errors.phone ? "inputError" : ""}`}
+            />
             {errors.phone && <span className="errorText">{errors.phone}</span>}
           </div>
 
@@ -234,36 +228,30 @@ export default function RegisterPage() {
           {/* Password Field */}
           <div className="formGroup">
             <label htmlFor="password" className="formLabel">Password</label>
-            <div className="inputContainer">
-              <Lock size={20} className="inputIcon" />
-              <input
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`formInput ${errors.password ? "inputError" : ""}`}
-              />
-            </div>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`formInput ${errors.password ? "inputError" : ""}`}
+            />
             {errors.password && <span className="errorText">{errors.password}</span>}
           </div>
 
           {/* Confirm Password Field */}
           <div className="formGroup">
             <label htmlFor="confirmPassword" className="formLabel">Confirm Password</label>
-            <div className="inputContainer">
-              <Lock size={20} className="inputIcon" />
-              <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                placeholder="Re-enter password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`formInput ${errors.confirmPassword ? "inputError" : ""}`}
-              />
-            </div>
+            <input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              placeholder="Re-enter password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={`formInput ${errors.confirmPassword ? "inputError" : ""}`}
+            />
             {errors.confirmPassword && <span className="errorText">{errors.confirmPassword}</span>}
           </div>
 
