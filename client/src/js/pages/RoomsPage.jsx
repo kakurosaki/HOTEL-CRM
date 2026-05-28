@@ -26,6 +26,7 @@ export default function RoomsPage() {
   const [editingRoom, setEditingRoom] = useState(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [selectedDeleteRoom, setSelectedDeleteRoom] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     room_number: "",
     room_type: "Standard",
@@ -135,6 +136,7 @@ export default function RoomsPage() {
         setShowEditModal(false);
         setEditingRoom(null);
         setSettingsMode(null);
+        setSearchQuery("");
         fetchRooms();
         fetchStats();
         alert("Room updated successfully!");
@@ -162,11 +164,13 @@ export default function RoomsPage() {
         setDeleteConfirmText("");
         setSelectedDeleteRoom(null);
         setSettingsMode(null);
+        setSearchQuery("");
         fetchRooms();
         fetchStats();
         alert("Room deleted successfully!");
       } else {
-        alert("Error deleting room");
+        const errorData = await response.json();
+        alert(`Error deleting room: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Error deleting room:", error);
@@ -191,6 +195,11 @@ export default function RoomsPage() {
     setEditingRoom(null);
     setFormData({ room_number: "", room_type: "Standard", price_per_night: "", status: "available" });
   };
+
+  const filteredRooms = rooms.filter(room =>
+    room.room_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    room.room_type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const modalStyle = {
     position: "fixed",
@@ -223,6 +232,7 @@ export default function RoomsPage() {
           onClick={() => {
             setShowSettings(true);
             setSettingsMode(null);
+            setSearchQuery("");
           }}
           style={{
             padding: "0.75rem 1.5rem",
@@ -551,6 +561,7 @@ export default function RoomsPage() {
                 onClick={() => {
                   setSettingsMode(null);
                   setShowSettings(true);
+                  setSearchQuery("");
                 }}
                 style={{
                   fontSize: "1.5rem",
@@ -563,8 +574,24 @@ export default function RoomsPage() {
               </button>
             </div>
 
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                type="text"
+                placeholder="Search by room number or type..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  fontSize: "1rem"
+                }}
+              />
+            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", maxHeight: "400px", overflowY: "auto" }}>
-              {rooms.map((room) => (
+              {filteredRooms.map((room) => (
                 <button
                   key={room.id}
                   onClick={() => openEditModal(room)}
@@ -591,6 +618,7 @@ export default function RoomsPage() {
               onClick={() => {
                 setSettingsMode(null);
                 setShowSettings(true);
+                setSearchQuery("");
               }}
               style={{
                 marginTop: "1.5rem",
@@ -675,6 +703,7 @@ export default function RoomsPage() {
                     closeModals();
                     setShowSettings(true);
                     setSettingsMode("edit");
+                    setSearchQuery("");
                   }}
                   style={{
                     padding: "0.75rem 1.5rem",
@@ -718,6 +747,7 @@ export default function RoomsPage() {
                 onClick={() => {
                   setSettingsMode(null);
                   setShowSettings(true);
+                  setSearchQuery("");
                 }}
                 style={{
                   fontSize: "1.5rem",
@@ -730,8 +760,24 @@ export default function RoomsPage() {
               </button>
             </div>
 
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                type="text"
+                placeholder="Search by room number or type..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  fontSize: "1rem"
+                }}
+              />
+            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem", maxHeight: "400px", overflowY: "auto" }}>
-              {rooms.map((room) => (
+              {filteredRooms.map((room) => (
                 <button
                   key={room.id}
                   onClick={() => setSelectedDeleteRoom(room)}
@@ -758,6 +804,7 @@ export default function RoomsPage() {
               onClick={() => {
                 setSettingsMode(null);
                 setShowSettings(true);
+                setSearchQuery("");
               }}
               style={{
                 marginTop: "1.5rem",
@@ -809,6 +856,7 @@ export default function RoomsPage() {
                   setDeleteConfirmText("");
                   setShowSettings(true);
                   setSettingsMode("delete");
+                  setSearchQuery("");
                 }}
                 style={{
                   padding: "0.75rem 1.5rem",
