@@ -9,6 +9,7 @@ CREATE TABLE staff (
   id SERIAL PRIMARY KEY,
   username VARCHAR(100) UNIQUE NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
+  phone VARCHAR(20),
   password_hashed VARCHAR(255) NOT NULL,
   name VARCHAR(100),
   role VARCHAR(50),
@@ -56,8 +57,8 @@ CREATE TABLE bookings (
 
 -- Seed staff table
 -- Password: admin123 (valid bcrypt hash)
-INSERT INTO staff (username, email, password_hashed, name, role) 
-VALUES ('admin', 'admin@hotel.com', '$2a$10$XzMZrCZPzKFd37wf3XGbk.EjZUOm2mUJRXKLyIJV4CEVu.zbff7si', 'Admin User', 'admin');
+INSERT INTO staff (username, email, phone, password_hashed, name, role) 
+VALUES ('admin', 'admin@hotel.com', '+1-555-0000', '$2a$10$XzMZrCZPzKFd37wf3XGbk.EjZUOm2mUJRXKLyIJV4CEVu.zbff7si', 'Admin User', 'Admin');
 
 -- Seed rooms table
 INSERT INTO rooms (room_number, room_type, price_per_night, status) 
