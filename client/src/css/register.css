@@ -55,6 +55,7 @@
 .formGroup {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .formGroup:nth-child(3),
@@ -64,7 +65,6 @@
 
 .formLabel {
   font-weight: 600;
-  margin-bottom: 0.5rem;
   color: #2d3748;
   font-size: 0.95rem;
 }
@@ -77,15 +77,18 @@
 
 .inputIcon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   color: #cbd5e0;
   pointer-events: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .formInput {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  padding: 0.8rem 1rem 0.8rem 2.8rem;
   border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -93,6 +96,8 @@
   background-color: #f9fafb;
   color: #2d3748;
   font-family: inherit;
+  height: 44px;
+  box-sizing: border-box;
 }
 
 .formInput:focus {
@@ -116,11 +121,11 @@
 
 .formSelect {
   appearance: none;
-  padding-right: 2.5rem;
+  padding-right: 2.8rem;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-left: 2.5rem;
+  background-position: right 14px center;
+  padding-left: 1rem;
 }
 
 .errorText {
@@ -172,6 +177,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  height: 48px;
 }
 
 .btnPrimary {
