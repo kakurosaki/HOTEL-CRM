@@ -1,37 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import NewBookingModal from "../components/NewBookingModal";
-import CancelBookingModal from "../components/CancelBookingModal";
+import BookingEditModal from "../components/BookingEditModal";
 import "../../css/bookings.css";
+import { apiFetch } from "../utils/api";
 
-export default function BookingsPage() {
+export default function BookingsPage({ staff }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [pageError, setPageError] = useState("");
   const [actionError, setActionError] = useState("");
   const [actionLoadingId, setActionLoadingId] = useState(null);
-  const [editingBookingId, setEditingBookingId] = useState(null);
-  const [editingStatus, setEditingStatus] = useState("confirmed");
-  const [cancelBooking, setCancelBooking] = useState(null);
-  const [viewBooking, setViewBooking] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [guests, setGuests] = useState([]);
+  const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
     fetchBookings();
+    fetchGuests();
+    fetchRooms();
   }, []);
 
   useEffect(() => {
     filterBookings();
-  }, [search, statusFilter, bookings]);
+  }, [search, statusFilter, dateFrom, dateTo, bookings]);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
       setPageError("");
-      const response = await fetch("/api/bookings");
+      const response = await apiFetch("/api/bookings");
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
       }
@@ -42,6 +46,26 @@ export default function BookingsPage() {
       setPageError("Failed to load bookings. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGuests = async () => {
+    try {
+      const response = await apiFetch("/api/guests");
+      const data = await response.json();
+      setGuests(Array.isArray(data) ? data : data.guests || []);
+    } catch (error) {
+      console.error("Error fetching guests:", error);
+    }
+  };
+
+  const fetchRooms = async () => {
+    try {
+      const response = await apiFetch("/api/rooms");
+      const data = await response.json();
+      setRooms(Array.isArray(data) ? data : data.rooms || []);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
     }
   };
 
@@ -63,6 +87,14 @@ export default function BookingsPage() {
       );
     }
 
+    if (dateFrom) {
+      filtered = filtered.filter((booking) => booking.check_in_date >= dateFrom);
+    }
+
+    if (dateTo) {
+      filtered = filtered.filter((booking) => booking.check_in_date <= dateTo);
+    }
+
     setFilteredBookings(filtered);
   };
 
@@ -75,21 +107,15 @@ export default function BookingsPage() {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  const startStatusEdit = (booking) => {
-    setEditingBookingId(booking.id);
-    setEditingStatus((booking.status || "pending").toLowerCase());
-    setActionError("");
-  };
-
-  const updateBookingStatus = async (bookingId, status, options = {}) => {
+  const saveBooking = async (bookingId, payload) => {
     try {
       setActionLoadingId(bookingId);
       setActionError("");
 
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await apiFetch(`/api/bookings/${bookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
 
@@ -100,20 +126,17 @@ export default function BookingsPage() {
       setBookings((prev) =>
         prev.map((booking) =>
           booking.id === bookingId
-            ? { ...booking, status: data.status || status }
+            ? { ...booking, ...data }
             : booking
         )
       );
 
-      if (options.closeEdit) {
-        setEditingBookingId(null);
-      }
-      if (options.closeCancel) {
-        setCancelBooking(null);
-      }
+      setSelectedBooking((prev) => (prev && prev.id === bookingId ? { ...prev, ...data } : prev));
+      return data;
     } catch (error) {
       console.error("Error updating booking:", error);
       setActionError(error.message || "Failed to update booking");
+      return null;
     } finally {
       setActionLoadingId(null);
     }
@@ -127,7 +150,7 @@ export default function BookingsPage() {
       setActionLoadingId(booking.id);
       setActionError("");
 
-      const response = await fetch(`/api/bookings/${booking.id}`, {
+      const response = await apiFetch(`/api/bookings/${booking.id}`, {
         method: "DELETE",
       });
 
@@ -137,12 +160,7 @@ export default function BookingsPage() {
       }
 
       setBookings((prev) => prev.filter((item) => item.id !== booking.id));
-      if (cancelBooking?.id === booking.id) {
-        setCancelBooking(null);
-      }
-      if (editingBookingId === booking.id) {
-        setEditingBookingId(null);
-      }
+      setSelectedBooking(null);
     } catch (error) {
       console.error("Error deleting booking:", error);
       setActionError(error.message || "Failed to delete booking");
@@ -157,6 +175,12 @@ export default function BookingsPage() {
         return "#16a34a";
       case "pending":
         return "#eab308";
+      case "checked-in":
+        return "#2563eb";
+      case "checked-out":
+        return "#64748b";
+      case "no-show":
+        return "#7c3aed";
       case "cancelled":
         return "#dc2626";
       default:
@@ -165,29 +189,22 @@ export default function BookingsPage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <h1>Bookings</h1>
+    <div className="crmPage">
+      <div className="pageHeader">
+        <div>
+          <h1 className="pageTitle">Bookings</h1>
+          <p className="pageLead">Manage reservations, stays, and guest occupancy from one source of truth.</p>
+        </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          style={{
-            padding: "0.75rem 1.5rem",
-            backgroundColor: "#2563eb",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "600",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-          }}
+          className="crmActionButton"
+          style={{ padding: "0.8rem 1.2rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
         >
           <Plus size={20} /> New Booking
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div className="toolbar">
         <div style={{ flex: 1, position: "relative" }}>
           <Search
             size={20}
@@ -206,9 +223,7 @@ export default function BookingsPage() {
             onChange={(e) => setSearch(e.target.value)}
             style={{
               width: "100%",
-              padding: "0.75rem 1rem 0.75rem 2.5rem",
-              border: "1px solid #e2e8f0",
-              borderRadius: "6px",
+              padding: "0.9rem 1rem 0.9rem 2.65rem",
               fontSize: "1rem",
             }}
           />
@@ -227,24 +242,35 @@ export default function BookingsPage() {
           <option>All Status</option>
           <option>Confirmed</option>
           <option>Pending</option>
+          <option>Checked-in</option>
+          <option>Checked-out</option>
+          <option>No-show</option>
           <option>Cancelled</option>
         </select>
       </div>
 
+      <div className="toolbar" style={{ marginBottom: "1.5rem" }}>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          style={{ padding: "0.9rem 1rem" }}
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          style={{ padding: "0.9rem 1rem" }}
+        />
+      </div>
+
       {loading ? (
-        <p>Loading bookings...</p>
+        <div className="surfaceCard panel">Loading bookings...</div>
       ) : filteredBookings.length === 0 ? (
-        <p>No bookings found.</p>
+        <div className="surfaceCard panel emptyState">No bookings found.</div>
       ) : (
-        <div
-          style={{
-            overflowX: "auto",
-            backgroundColor: "white",
-            borderRadius: "8px",
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="surfaceCard panel" style={{ overflowX: "auto" }}>
+          <table className="dataTable">
             <thead>
               <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                 <th style={{ padding: "1rem", textAlign: "left", fontWeight: "600", color: "#475569" }}>BOOKING ID</th>
@@ -280,82 +306,19 @@ export default function BookingsPage() {
                     <td style={{ padding: "1rem" }}>{nights}</td>
                     <td style={{ padding: "1rem" }}>${booking.total_price || "N/A"}</td>
                     <td style={{ padding: "1rem" }}>
-                      <span
-                        style={{
-                          padding: "0.25rem 0.75rem",
-                          borderRadius: "4px",
-                          backgroundColor: getStatusColor(booking.status),
-                          color: "white",
-                          fontSize: "0.85rem",
-                          fontWeight: "600",
-                        }}
-                      >
-                         {formatStatus(booking.status)}
+                      <span className="statusPill" style={{ backgroundColor: getStatusColor(booking.status) }}>
+                        {formatStatus(booking.status)}
                       </span>
                     </td>
                     <td style={{ padding: "1rem" }}>
-                       {editingBookingId === booking.id ? (
-                         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-                           <select
-                             value={editingStatus}
-                             onChange={(e) => setEditingStatus(e.target.value)}
-                             disabled={actionLoadingId === booking.id}
-                             style={{ padding: "0.35rem 2rem 0.35rem 0.5rem", borderRadius: "4px", border: "1px solid #cbd5e1" }}
-                           >
-                             <option value="confirmed">Confirmed</option>
-                             <option value="pending">Pending</option>
-                             <option value="cancelled">Cancelled</option>
-                           </select>
-                           <button
-                             onClick={() => updateBookingStatus(booking.id, editingStatus, { closeEdit: true })}
-                             disabled={actionLoadingId === booking.id}
-                             style={{ border: "none", backgroundColor: "#16a34a", color: "white", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
-                           >
-                             {actionLoadingId === booking.id ? "Saving..." : "Save"}
-                           </button>
-                           <button
-                             onClick={() => setEditingBookingId(null)}
-                             disabled={actionLoadingId === booking.id}
-                             style={{ border: "1px solid #cbd5e1", backgroundColor: "white", color: "#334155", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
-                           >
-                             Cancel
-                           </button>
-                         </div>
-                       ) : (
-                         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                           <button
-                             onClick={() => startStatusEdit(booking)}
-                             disabled={actionLoadingId === booking.id}
-                             style={{ border: "1px solid #cbd5e1", backgroundColor: "white", color: "#334155", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
-                           >
-                             Edit
-                           </button>
-                           <button
-                             onClick={() => setViewBooking(booking)}
-                             disabled={actionLoadingId === booking.id}
-                             style={{ border: "1px solid #cbd5e1", backgroundColor: "white", color: "#334155", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
-                           >
-                             View
-                           </button>
-                           <button
-                             onClick={() => {
-                               setActionError("");
-                               setCancelBooking(booking);
-                             }}
-                             disabled={actionLoadingId === booking.id || booking.status?.toLowerCase() === "cancelled"}
-                             style={{ border: "none", backgroundColor: "#dc2626", color: "white", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer", opacity: booking.status?.toLowerCase() === "cancelled" ? 0.6 : 1 }}
-                           >
-                             Cancel
-                           </button>
-                           <button
-                             onClick={() => handleDeleteBooking(booking)}
-                             disabled={actionLoadingId === booking.id}
-                             style={{ border: "none", backgroundColor: "#334155", color: "white", borderRadius: "4px", padding: "0.35rem 0.6rem", cursor: "pointer" }}
-                           >
-                             {actionLoadingId === booking.id ? "Working..." : "Delete"}
-                           </button>
-                         </div>
-                       )}
+                      <button
+                        onClick={() => setSelectedBooking(booking)}
+                        disabled={actionLoadingId === booking.id}
+                        className="btnCancel"
+                        style={{ padding: "0.45rem 0.85rem" }}
+                      >
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 );
@@ -381,42 +344,18 @@ export default function BookingsPage() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleAddBooking}
       />
-      <CancelBookingModal
-        isOpen={Boolean(cancelBooking)}
-        booking={cancelBooking}
-        loading={actionLoadingId === cancelBooking?.id}
-        error={actionError}
-        onClose={() => {
-          if (actionLoadingId === cancelBooking?.id) return;
-          setCancelBooking(null);
-          setActionError("");
-        }}
-        onConfirm={(booking) =>
-          updateBookingStatus(booking.id, "cancelled", { closeCancel: true })
-        }
+
+      <BookingEditModal
+        isOpen={Boolean(selectedBooking)}
+        booking={selectedBooking}
+        guests={guests}
+        rooms={rooms}
+        loadingId={actionLoadingId}
+        onClose={() => setSelectedBooking(null)}
+        onSave={saveBooking}
+        onDelete={handleDeleteBooking}
+        canDelete={staff?.role === "Admin"}
       />
-      {viewBooking && (
-        <div className="modalOverlay" onClick={() => setViewBooking(null)}>
-          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-            <div className="modalHeader">
-              <h2>Booking #{viewBooking.id}</h2>
-            </div>
-            <div style={{ display: "grid", gap: "0.5rem", color: "#334155" }}>
-              <div><strong>Guest:</strong> {viewBooking.guest_name}</div>
-              <div><strong>Room:</strong> {viewBooking.room_number}</div>
-              <div><strong>Check-in:</strong> {viewBooking.check_in_date} {viewBooking.check_in_time}</div>
-              <div><strong>Check-out:</strong> {viewBooking.check_out_date} {viewBooking.check_out_time}</div>
-              <div><strong>Total:</strong> ${viewBooking.total_price || "N/A"}</div>
-              <div><strong>Status:</strong> {formatStatus(viewBooking.status)}</div>
-            </div>
-            <div className="modalFooter">
-              <button type="button" className="btnCancel" onClick={() => setViewBooking(null)}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

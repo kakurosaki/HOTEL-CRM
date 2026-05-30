@@ -1,15 +1,17 @@
 .registerPageContainer {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
 .registerContent {
-  background: white;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 22px 60px rgba(3, 12, 28, 0.1);
+  backdrop-filter: blur(16px);
 }
 
 .registerHeader {
@@ -26,7 +28,7 @@
   justify-content: center;
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
   border-radius: 50%;
   margin-bottom: 1rem;
   color: white;
@@ -34,13 +36,13 @@
 
 .registerHeader h1 {
   margin: 0;
-  font-size: 2rem;
-  color: #1a202c;
+  font-size: 2.15rem;
+  color: var(--ink);
   margin-bottom: 0.5rem;
 }
 
 .registerSubtitle {
-  color: #718096;
+  color: var(--text-muted);
   font-size: 1rem;
   margin: 0;
 }
@@ -71,13 +73,13 @@
 
 .formInput {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border: 1.5px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
   font-size: 0.95rem;
   transition: all 0.2s ease;
-  background-color: #f9fafb;
-  color: #2d3748;
+  background-color: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
   font-family: inherit;
   height: 44px;
   box-sizing: border-box;
@@ -85,9 +87,9 @@
 
 .formInput:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: rgba(184, 137, 59, 0.8);
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px rgba(184, 137, 59, 0.15);
 }
 
 .formInput::placeholder {
@@ -95,19 +97,29 @@
 }
 
 .formInput.inputError {
-  border-color: #f56565;
+  border-color: var(--danger);
 }
 
 .formInput.inputError:focus {
-  box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
 }
 
 .formSelect {
+  height: 44px;
+  line-height: 1.2;
   appearance: none;
-  padding-right: 1rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2361708a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 1rem center;
+  background-size: 12px 12px;
+  cursor: pointer;
+}
+
+.formSelect::-ms-expand {
+  display: none;
 }
 
 .errorText {
@@ -117,22 +129,22 @@
 
 .successMessage {
   grid-column: 1 / -1;
-  background-color: #c6f6d5;
-  border: 1px solid #9ae6b4;
-  color: #22543d;
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.18);
+  color: #14532d;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 14px;
   margin-bottom: 1rem;
   font-weight: 500;
 }
 
 .errorMessage {
   grid-column: 1 / -1;
-  background-color: #fed7d7;
-  border: 1px solid #fc8181;
-  color: #742a2a;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.16);
+  color: #7f1d1d;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 14px;
   margin-bottom: 1rem;
   font-weight: 500;
 }
@@ -148,8 +160,8 @@
 .btnPrimary,
 .btnSecondary {
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -162,13 +174,13 @@
 }
 
 .btnPrimary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
   color: white;
 }
 
 .btnPrimary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12px 24px rgba(184, 137, 59, 0.22);
 }
 
 .btnPrimary:disabled {
@@ -177,13 +189,13 @@
 }
 
 .btnSecondary {
-  background-color: #edf2f7;
-  color: #2d3748;
-  border: 1.5px solid #cbd5e0;
+  background-color: rgba(15, 23, 42, 0.06);
+  color: var(--ink);
+  border: 1.5px solid rgba(15, 23, 42, 0.1);
 }
 
 .btnSecondary:hover:not(:disabled) {
-  background-color: #e2e8f0;
+  background-color: rgba(15, 23, 42, 0.09);
 }
 
 .btnSecondary:disabled {
@@ -193,15 +205,15 @@
 
 /* Guidelines Section */
 .guidelinesSection {
-  background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%);
-  border: 1px solid #bfdbfe;
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(184, 137, 59, 0.12) 0%, rgba(20, 184, 166, 0.08) 100%);
+  border: 1px solid rgba(184, 137, 59, 0.18);
+  border-radius: 24px;
   padding: 2rem;
   margin-top: 2rem;
 }
 
 .guidelinesTitle {
-  color: #1e40af;
+  color: var(--ink);
   font-size: 1.5rem;
   margin: 0 0 1.5rem 0;
   font-weight: 700;
@@ -216,7 +228,7 @@
 }
 
 .guidelinesList li {
-  color: #1e40af;
+  color: var(--text);
   font-size: 1rem;
   line-height: 1.6;
   padding-left: 1.5rem;
@@ -233,7 +245,7 @@
 
 .guidelinesList strong {
   font-weight: 700;
-  color: #1e3a8a;
+  color: var(--gold);
 }
 
 /* Responsive Design */

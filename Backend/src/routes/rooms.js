@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { pool } from "../db.js";
+import { getAuditActor, recordAudit } from "../utils/audit.js";
 
 const router = Router();
 
@@ -85,6 +86,15 @@ router.post("/", async (req, res) => {
       [room_number, room_type, price_per_night, status || 'available']
     );
 
+    await recordAudit({
+      action: "create",
+      entityType: "room",
+      entityId: result.rows[0].id,
+      entityName: `Room ${result.rows[0].room_number}`,
+      actor: getAuditActor(req),
+      metadata: { room_type, price_per_night, status: status || "available" },
+    });
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("Error creating room:", error);
@@ -116,6 +126,15 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Room not found" });
     }
 
+    await recordAudit({
+      action: "update",
+      entityType: "room",
+      entityId: result.rows[0].id,
+      entityName: `Room ${result.rows[0].room_number}`,
+      actor: getAuditActor(req),
+      metadata: { room_number, room_type, price_per_night, status },
+    });
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Error updating room:", error);
@@ -136,6 +155,15 @@ router.delete("/:id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Room not found" });
     }
+
+    await recordAudit({
+      action: "delete",
+      entityType: "room",
+      entityId: result.rows[0].id,
+      entityName: `Room #${result.rows[0].id}`,
+      actor: getAuditActor(req),
+      metadata: {},
+    });
 
     res.json({ message: "Room deleted successfully" });
   } catch (error) {

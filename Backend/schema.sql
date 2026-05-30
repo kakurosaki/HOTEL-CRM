@@ -16,6 +16,18 @@ CREATE TABLE staff (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create audit log table
+CREATE TABLE audit_logs (
+  id SERIAL PRIMARY KEY,
+  action VARCHAR(50) NOT NULL,
+  entity_type VARCHAR(50) NOT NULL,
+  entity_id VARCHAR(50) NOT NULL,
+  entity_name VARCHAR(150),
+  actor VARCHAR(100) DEFAULT 'system',
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create rooms table
 CREATE TABLE rooms (
   id SERIAL PRIMARY KEY,
@@ -32,12 +44,6 @@ CREATE TABLE guests (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   phone VARCHAR(20),
-  room_id INTEGER NOT NULL REFERENCES rooms(id) ON DELETE RESTRICT,
-  check_in_date DATE NOT NULL,
-  check_in_time TIME NOT NULL,
-  check_out_date DATE NOT NULL,
-  check_out_time TIME NOT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'reserved' CHECK (status IN ('checked-in', 'reserved', 'checked-out')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -51,7 +57,7 @@ CREATE TABLE bookings (
   check_out_date DATE NOT NULL,
   check_out_time TIME NOT NULL,
   total_price DECIMAL(10, 2),
-  status VARCHAR(50) DEFAULT 'confirmed',
+  status VARCHAR(50) DEFAULT 'confirmed' CHECK (status IN ('confirmed', 'pending', 'checked-in', 'checked-out', 'cancelled', 'no-show')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -77,13 +83,13 @@ VALUES
   ('402', 'Presidential', 500.00, 'occupied');
 
 -- Seed guests table
-INSERT INTO guests (name, email, phone, room_id, check_in_date, check_in_time, check_out_date, check_out_time, status) 
+INSERT INTO guests (name, email, phone) 
 VALUES 
-  ('Sarah Johnson', 'sarah.j@email.com', '+1 (555) 123-4567', 5, CURRENT_DATE - INTERVAL '1 day', '14:00', CURRENT_DATE + INTERVAL '2 days', '11:00', 'checked-in'),
-  ('Michael Chen', 'mchen@email.com', '+1 (555) 234-5678', 10, CURRENT_DATE, '13:00', CURRENT_DATE + INTERVAL '3 days', '10:00', 'checked-in'),
-  ('Emily Rodriguez', 'emily.r@email.com', '+1 (555) 345-6789', 2, CURRENT_DATE + INTERVAL '2 days', '15:00', CURRENT_DATE + INTERVAL '5 days', '10:30', 'reserved'),
-  ('David Kim', 'dkim@email.com', '+1 (555) 456-7890', 12, CURRENT_DATE - INTERVAL '5 days', '12:00', CURRENT_DATE - INTERVAL '1 day', '09:00', 'checked-out'),
-  ('Jessica Brown', 'jbrown@email.com', '+1 (555) 567-8901', 11, CURRENT_DATE + INTERVAL '4 days', '16:00', CURRENT_DATE + INTERVAL '6 days', '11:30', 'reserved');
+  ('Sarah Johnson', 'sarah.j@email.com', '+1 (555) 123-4567'),
+  ('Michael Chen', 'mchen@email.com', '+1 (555) 234-5678'),
+  ('Emily Rodriguez', 'emily.r@email.com', '+1 (555) 345-6789'),
+  ('David Kim', 'dkim@email.com', '+1 (555) 456-7890'),
+  ('Jessica Brown', 'jbrown@email.com', '+1 (555) 567-8901');
 
 -- Seed bookings table
 INSERT INTO bookings (guest_id, room_id, check_in_date, check_in_time, check_out_date, check_out_time, total_price, status) 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import RoomSearchSelect from "./RoomSearchSelect";
 import "../../css/modal.css";
+import { apiFetch } from "../utils/api";
 
 export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -27,9 +29,9 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
 
   const fetchGuests = async () => {
     try {
-      const response = await fetch("/api/guests");
+      const response = await apiFetch("/api/guests");
       const data = await response.json();
-      setGuests(data);
+      setGuests(Array.isArray(data) ? data : data.guests || []);
     } catch (err) {
       console.error("Error fetching guests:", err);
     }
@@ -37,9 +39,9 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch("/api/rooms");
+      const response = await apiFetch("/api/rooms?status=available");
       const data = await response.json();
-      setRooms(data.rooms || []);
+      setRooms(Array.isArray(data) ? data : data.rooms || []);
     } catch (err) {
       console.error("Error fetching rooms:", err);
     }
@@ -48,6 +50,16 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
+
+  const handleRoomChange = (roomId) => {
+    setFormData((prev) => ({ ...prev, room_id: roomId }));
+    setError("");
+  };
+
+  const handleGuestChange = (e) => {
+    setFormData((prev) => ({ ...prev, guest_id: e.target.value }));
     setError("");
   };
 
@@ -101,7 +113,7 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
     }
 
     try {
-      const response = await fetch("/api/bookings", {
+      const response = await apiFetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -154,7 +166,7 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
               id="guest_id"
               name="guest_id"
               value={formData.guest_id}
-              onChange={handleChange}
+              onChange={handleGuestChange}
               disabled={loading}
             >
               <option value="">Select a guest...</option>
@@ -166,23 +178,29 @@ export default function NewBookingModal({ isOpen, onClose, onSuccess }) {
             </select>
           </div>
 
-          <div className="formGroup">
-            <label htmlFor="room_id">Room *</label>
-            <select
-              id="room_id"
-              name="room_id"
-              value={formData.room_id}
-              onChange={handleChange}
-              disabled={loading}
-            >
-              <option value="">Select a room...</option>
-              {rooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  {room.room_number} ({room.room_type}) - ${room.price_per_night}/night
-                </option>
-              ))}
-            </select>
-          </div>
+          {formData.guest_id && (() => {
+            const selectedGuest = guests.find((guest) => String(guest.id) === String(formData.guest_id));
+            if (!selectedGuest) return null;
+
+            return (
+              <div style={{ marginBottom: "1rem", padding: "0.85rem 1rem", border: "1px solid #e2e8f0", borderRadius: "8px", background: "#f8fafc" }}>
+                <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>{selectedGuest.name}</div>
+                <div style={{ color: "#64748b", fontSize: "0.9rem" }}>{selectedGuest.email}</div>
+                <div style={{ color: "#64748b", fontSize: "0.9rem" }}>{selectedGuest.phone}</div>
+              </div>
+            );
+          })()}
+
+          <RoomSearchSelect
+            id="room_id"
+            name="room_id"
+            label="Room *"
+            rooms={rooms}
+            value={formData.room_id}
+            onChange={handleRoomChange}
+            disabled={loading}
+            availableOnly
+          />
 
           <div className="formGroup">
             <label htmlFor="check_in_date">Check-in Date *</label>

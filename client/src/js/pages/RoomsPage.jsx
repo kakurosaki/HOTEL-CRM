@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { apiFetch } from "../utils/api";
 
 const statusColorMap = {
   available: { bg: "#10b981", text: "white", dot: "#10b981" },
@@ -7,7 +8,7 @@ const statusColorMap = {
   maintenance: { bg: "#f97316", text: "white", dot: "#f97316" }
 };
 
-export default function RoomsPage() {
+export default function RoomsPage({ staff }) {
   const [rooms, setRooms] = useState([]);
   const [stats, setStats] = useState({
     available: 0,
@@ -38,6 +39,7 @@ export default function RoomsPage() {
   const statuses = ["All Status", "available", "occupied", "cleaning", "maintenance"];
   const roomTypes = ["Standard", "Deluxe", "Suite", "Presidential"];
   const roomStatuses = ["available", "occupied", "cleaning", "maintenance"];
+  const canManageRooms = staff?.role === "Admin";
 
   useEffect(() => {
     fetchRooms();
@@ -56,7 +58,7 @@ export default function RoomsPage() {
         params.append("status", statusFilter);
       }
 
-      const response = await fetch(`/api/rooms?${params.toString()}`);
+      const response = await apiFetch(`/api/rooms?${params.toString()}`);
       const data = await response.json();
       setRooms(data);
       setLoading(false);
@@ -68,11 +70,37 @@ export default function RoomsPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch("/api/rooms/stats");
+      const response = await apiFetch("/api/rooms/stats");
       const data = await response.json();
       setStats(data);
     } catch (error) {
       console.error("Error fetching room stats:", error);
+    }
+  };
+
+  const updateRoomStatus = async (room, status) => {
+    try {
+      const response = await apiFetch(`/api/rooms/${room.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          room_number: room.room_number,
+          room_type: room.room_type,
+          price_per_night: parseFloat(room.price_per_night),
+          status,
+        }),
+      });
+
+      if (response.ok) {
+        fetchRooms();
+        fetchStats();
+      } else {
+        const errorData = await response.json();
+        alert(`Error updating room status: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error("Error updating room status:", error);
+      alert("Error updating room status");
     }
   };
 
@@ -85,7 +113,7 @@ export default function RoomsPage() {
     }
 
     try {
-      const response = await fetch("/api/rooms", {
+      const response = await apiFetch("/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -120,7 +148,7 @@ export default function RoomsPage() {
     }
 
     try {
-      const response = await fetch(`/api/rooms/${editingRoom.id}`, {
+      const response = await apiFetch(`/api/rooms/${editingRoom.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -156,7 +184,7 @@ export default function RoomsPage() {
     }
 
     try {
-      const response = await fetch(`/api/rooms/${selectedDeleteRoom.id}`, {
+      const response = await apiFetch(`/api/rooms/${selectedDeleteRoom.id}`, {
         method: "DELETE"
       });
 
@@ -198,7 +226,8 @@ export default function RoomsPage() {
 
   const filteredRooms = rooms.filter(room =>
     room.room_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    room.room_type.toLowerCase().includes(searchQuery.toLowerCase())
+    room.room_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    room.status.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const modalStyle = {
@@ -225,41 +254,42 @@ export default function RoomsPage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1>Rooms</h1>
-        <button
-          onClick={() => {
-            setShowSettings(true);
-            setSettingsMode(null);
-            setSearchQuery("");
-          }}
-          style={{
-            padding: "0.75rem 1.5rem",
-            backgroundColor: "#f3f4f6",
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "500"
-          }}
-        >
-          Room Settings
-        </button>
+    <div className="crmPage">
+      <div className="pageHeader">
+        <div>
+          <h1 className="pageTitle">Rooms</h1>
+          <p className="pageLead">Track availability, housekeeping, and room readiness at a glance.</p>
+        </div>
+        {canManageRooms && (
+          <button
+            onClick={() => {
+              setShowSettings(true);
+              setSettingsMode(null);
+              setSearchQuery("");
+            }}
+            className="btnCancel"
+            style={{ padding: "0.8rem 1.2rem" }}
+          >
+            Room Settings
+          </button>
+        )}
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div className="toolbar">
+        <input
+          type="text"
+          placeholder="Search rooms by number, type, or status..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ width: "100%", fontSize: "1rem" }}
+        />
+      </div>
+
+      <div className="toolbar" style={{ marginBottom: "1.5rem" }}>
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          style={{
-            padding: "0.75rem 1rem",
-            border: "1px solid #e2e8f0",
-            borderRadius: "8px",
-            fontSize: "1rem",
-            minWidth: "200px",
-            cursor: "pointer"
-          }}
+          style={{ padding: "0.85rem 1rem", fontSize: "1rem", minWidth: "200px" }}
         >
           {types.map((type) => (
             <option key={type} value={type}>
@@ -271,14 +301,7 @@ export default function RoomsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          style={{
-            padding: "0.75rem 1rem",
-            border: "1px solid #e2e8f0",
-            borderRadius: "8px",
-            fontSize: "1rem",
-            minWidth: "200px",
-            cursor: "pointer"
-          }}
+          style={{ padding: "0.85rem 1rem", fontSize: "1rem", minWidth: "200px" }}
         >
           {statuses.map((status) => (
             <option key={status} value={status}>
@@ -288,13 +311,13 @@ export default function RoomsPage() {
         </select>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+      <div className="statGrid cols-4" style={{ marginBottom: "2rem" }}>
         {["available", "occupied", "cleaning", "maintenance"].map((status) => (
-          <div key={status} style={{ backgroundColor: "white", padding: "1.5rem", borderRadius: "8px", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)" }}>
-            <div style={{ textTransform: "capitalize", fontSize: "1rem", color: "#64748b", marginBottom: "0.5rem" }}>
+          <div key={status} className="statCard">
+            <div className="statLabel" style={{ textTransform: "capitalize" }}>
               {status}
             </div>
-            <div style={{ fontSize: "2rem", fontWeight: "700", color: statusColorMap[status].dot }}>
+            <div className="statValue" style={{ color: statusColorMap[status].dot }}>
               {stats[status]}
             </div>
           </div>
@@ -302,19 +325,14 @@ export default function RoomsPage() {
       </div>
 
       {loading ? (
-        <p>Loading rooms...</p>
+        <div className="surfaceCard panel">Loading rooms...</div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.2rem" }}>
           {rooms.map((room) => (
             <div
               key={room.id}
-              style={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "1.5rem",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                borderTop: `4px solid ${statusColorMap[room.status].dot}`
-              }}
+              className="surfaceCard panel"
+              style={{ borderTop: `4px solid ${statusColorMap[room.status].dot}` }}
             >
               <div style={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}>
                 <span style={{ fontSize: "1.5rem", marginRight: "0.5rem" }}>🏨</span>
@@ -331,7 +349,7 @@ export default function RoomsPage() {
                     display: "inline-block",
                     width: "12px",
                     height: "12px",
-                    borderRadius: "50%",
+                      borderRadius: "50%",
                     backgroundColor: statusColorMap[room.status].dot
                   }}
                 ></span>
@@ -353,6 +371,7 @@ export default function RoomsPage() {
               <div style={{ fontSize: "1.25rem", fontWeight: "600", color: "#334155" }}>
                 ${room.price_per_night}/night
               </div>
+
             </div>
           ))}
         </div>
@@ -890,4 +909,49 @@ export default function RoomsPage() {
       )}
     </div>
   );
+
+      {/* Update Room Status Modal */}
+      {showStatusModal && statusRoom && (
+        <div style={modalStyle}>
+          <div style={modalContentStyle}>
+            <h2 style={{ marginTop: 0 }}>Update Room Status</h2>
+            <p style={{ color: "#64748b", marginTop: 0 }}>
+              Room {statusRoom.room_number} — {statusRoom.room_type}
+            </p>
+
+            <form onSubmit={handleStatusUpdate}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>Status</label>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  style={{ width: "100%", padding: "0.75rem", border: "1px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box" }}
+                >
+                  {roomStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  onClick={closeModals}
+                  style={{ padding: "0.75rem 1rem", borderRadius: "8px", border: "1px solid #cbd5e1", background: "white", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: "0.75rem 1rem", borderRadius: "8px", border: "none", background: "#0f172a", color: "white", cursor: "pointer", fontWeight: "600" }}
+                >
+                  Save Status
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 }

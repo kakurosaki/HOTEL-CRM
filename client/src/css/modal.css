@@ -4,27 +4,33 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(7, 17, 31, 0.62);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
   z-index: 1000;
 }
 
 .modalContent {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 500px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  padding: 1.75rem;
+  max-width: 640px;
   width: 90%;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  animation: slideIn 0.3s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(3, 12, 28, 0.28);
+  animation: modalRise 180ms ease-out;
 }
 
-@keyframes slideIn {
+@keyframes modalRise {
   from {
     opacity: 0;
-    transform: translateY(-50px);
+    transform: translateY(18px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -39,19 +45,24 @@
 .modalHeader h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: var(--gray-900);
-  font-weight: 700;
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .modalCloseBtn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 1rem;
   cursor: pointer;
-  color: var(--gray-600);
+  color: var(--text-muted);
 }
 
 .modalCloseBtn:hover {
@@ -78,11 +89,12 @@
 
 .formGroup input,
 .formGroup select {
-  padding: 0.75rem;
-  border: 1px solid var(--gray-200);
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
   font-size: 1rem;
   font-family: inherit;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .formGroup input:focus,
@@ -90,6 +102,10 @@
   outline: none;
   border-color: var(--blue-600);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.formGroup button {
+  font: inherit;
 }
 
 .formGroup input::placeholder {
@@ -117,9 +133,9 @@
 
 .btnCancel,
 .btnSubmit {
+  min-height: 46px;
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
+  border-radius: 14px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -127,21 +143,21 @@
 }
 
 .btnCancel {
-  background-color: var(--gray-200);
-  color: var(--gray-900);
+  background-color: rgba(15, 23, 42, 0.06);
+  color: var(--ink);
 }
 
 .btnCancel:hover {
-  background-color: var(--gray-300);
+  background-color: rgba(15, 23, 42, 0.1);
 }
 
 .btnSubmit {
-  background-color: var(--blue-600);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
   color: white;
 }
 
 .btnSubmit:hover {
-  background-color: var(--blue-700);
+  filter: brightness(1.02);
 }
 
 .btnSubmit:disabled {

@@ -34,10 +34,13 @@ export default function App() {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage staff={staff} />} />
-        <Route path="guests" element={<GuestsPage />} />
-        <Route path="bookings" element={<BookingsPage />} />
-        <Route path="rooms" element={<RoomsPage />} />
-        <Route path="register" element={<RegisterPage />} />
+        <Route path="guests" element={<GuestsPage staff={staff} />} />
+        <Route path="bookings" element={<BookingsPage staff={staff} />} />
+        <Route path="rooms" element={<RoomsPage staff={staff} />} />
+        <Route
+          path="register"
+          element={staff?.role === "Admin" ? <RegisterPage staff={staff} /> : <Navigate to="/dashboard" replace />}
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../../css/register.css";
+import { apiFetch } from "../utils/api";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -81,7 +82,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/register", {
+      const response = await apiFetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

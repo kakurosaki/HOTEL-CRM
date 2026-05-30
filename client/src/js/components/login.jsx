@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { User, Lock } from "lucide-react";
 import "../../css/login.css";
+import { apiFetch } from "../utils/api";
 
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
@@ -14,7 +15,7 @@ function Login({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await apiFetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: username, password: password }),
@@ -39,7 +40,7 @@ function Login({ onLoginSuccess }) {
   return (
     <div className="loginPage">
       <header className="loginHeader">
-        <h1 className="h1">Hotel CRM</h1>
+        <h1 className="h1">Rowdy Cloud</h1>
         <p className="loginSubtitle">Sign in to manage your hotel</p>
       </header>
 
