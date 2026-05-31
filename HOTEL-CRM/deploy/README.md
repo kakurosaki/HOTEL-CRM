@@ -17,7 +17,7 @@ Usage notes
 
 1. Prepare your repository URL and values.
 
-2. Edit `Backend/deploy/ec2-user-data.sh` and set `REPO_URL` to your repo. If your repo is private, configure deploy keys or use a public repo.
+2. Edit `Backend/deploy/ec2-user-data.sh` and set `REPO_URL` to your repo and keep `BRANCH=master` if AWS should pull from master. If your repo is private, configure deploy keys or use a public repo.
 
 3. Launch an EC2 instance and paste the contents of `ec2-user-data.sh` into the user-data field (or use the file as a cloud-init script). After boot the instance will clone and start the app.
 

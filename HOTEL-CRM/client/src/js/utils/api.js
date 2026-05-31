@@ -1,4 +1,4 @@
-const runtimeEnv = (typeof window !== "undefined" && window.__ENV) || {};
+const runtimeEnv = (typeof window !== "undefined" && (window.__ENV || window.__ENV__)) || {};
 const rawBase = runtimeEnv.VITE_API_BASE_URL || runtimeEnv.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || "";
 const apiBaseUrl = (rawBase && rawBase.replace ? rawBase.replace(/\/$/, "") : rawBase) || "";
 

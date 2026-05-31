@@ -315,7 +315,6 @@ export default function RoomsPage({ staff }) {
 
       <div className="statGrid cols-4" style={{ marginBottom: "2rem" }}>
         {["available", "reserved", "occupied", "cleaning", "maintenance"].map((status) => (
-        {['available', 'reserved', 'occupied', 'cleaning', 'maintenance'].map((status) => (
           <div key={status} className="statCard">
             <div className="statLabel" style={{ textTransform: "capitalize" }}>
               {status}

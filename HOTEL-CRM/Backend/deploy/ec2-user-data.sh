@@ -6,7 +6,7 @@ set -euo pipefail
 
 # --- Config (replace these) ---
 REPO_URL="REPLACE_WITH_GIT_REPO_URL"
-BRANCH="main"
+BRANCH="master"
 APP_DIR="/home/ubuntu/hotel-crm"
 BACKEND_DIR="$APP_DIR/Backend"
 # --- End config ---
@@ -27,12 +27,12 @@ sudo -u ubuntu bash -c "
   set -e
   # Clone repo (if not present)
   if [ ! -d \"$APP_DIR\" ]; then
-    git clone --depth 1 --branch $BRANCH $REPO_URL $APP_DIR
+    git clone --depth 1 --branch \"$BRANCH\" \"$REPO_URL\" \"$APP_DIR\"
   else
-    cd $APP_DIR && git fetch --all && git checkout $BRANCH && git pull
+    cd \"$APP_DIR\" && git fetch origin \"$BRANCH\" && git checkout -B \"$BRANCH\" \"origin/$BRANCH\" && git pull origin \"$BRANCH\"
   fi
 
-  cd $BACKEND_DIR
+  cd \"$BACKEND_DIR\"
   npm ci --production
 
   # Create `.env` from template if it does not exist

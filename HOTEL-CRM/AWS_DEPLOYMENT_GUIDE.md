@@ -178,7 +178,7 @@ Notes:
 
 Part C — EC2: launch and backend setup
 
-1. Edit `Backend/deploy/ec2-user-data.sh` and set `REPO_URL` to your repository. Optionally set `BRANCH`.
+1. Edit `Backend/deploy/ec2-user-data.sh` and set `REPO_URL` to your repository. Keep `BRANCH` set to `master` if you want AWS to pull from the master branch.
 
 2. Launch an EC2 instance (Ubuntu 22.04 recommended), paste the contents of `ec2-user-data.sh` into the user-data field when creating the instance.
    - Security group suggestions:
