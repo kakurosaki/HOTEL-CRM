@@ -1,0 +1,124 @@
+.loginPage {
+  min-height: 100vh;
+  padding: 2rem;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(184, 137, 59, 0.24), transparent 34%),
+    radial-gradient(circle at right 20%, rgba(20, 184, 166, 0.18), transparent 28%),
+    linear-gradient(180deg, #09111d 0%, #102033 44%, #eff4f8 44%, #f6f2ea 100%);
+}
+
+.loginPage::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.2;
+}
+
+.loginHeader {
+  text-align: center;
+  margin-bottom: 1.25rem;
+  color: #fff;
+  max-width: 720px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: #fff;
+  font-weight: 800;
+}
+
+.loginSubtitle {
+  margin: 0.8rem 0 0;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 500;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 28px;
+  box-shadow: 0 30px 80px rgba(3, 12, 28, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(18px);
+}
+
+.loginCard {
+  width: min(920px, 96vw);
+  padding: 2rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.65rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.inputWithIcon {
+  height: 58px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0 1rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.inputIcon {
+  color: var(--gold);
+  flex: 0 0 auto;
+}
+
+.textInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.textInput::placeholder {
+  color: #94a3b8;
+}
+
+.btnPrimary {
+  margin-top: 0.6rem;
+  width: 100%;
+  height: 58px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.btnPrimary:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 640px) {
+  .loginPage {
+    padding: 1rem;
+  }
+
+  .loginCard {
+    padding: 1.25rem;
+  }
+}

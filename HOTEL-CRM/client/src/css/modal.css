@@ -1,0 +1,166 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(7, 17, 31, 0.62);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  padding: 1.75rem;
+  max-width: 640px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(3, 12, 28, 0.28);
+  animation: modalRise 180ms ease-out;
+}
+
+@keyframes modalRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  margin-bottom: 1.5rem;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.modalCloseBtn {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.modalCloseBtn:hover {
+  color: var(--gray-900);
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: var(--blue-600);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.formGroup button {
+  font: inherit;
+}
+
+.formGroup input::placeholder {
+  color: #94a3b8;
+}
+
+.formError {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.formSuccess {
+  color: #16a34a;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.modalFooter {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+.btnCancel,
+.btnSubmit {
+  min-height: 46px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btnCancel {
+  background-color: rgba(15, 23, 42, 0.06);
+  color: var(--ink);
+}
+
+.btnCancel:hover {
+  background-color: rgba(15, 23, 42, 0.1);
+}
+
+.btnSubmit {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  color: white;
+}
+
+.btnSubmit:hover {
+  filter: brightness(1.02);
+}
+
+.btnSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

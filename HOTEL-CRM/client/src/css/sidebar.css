@@ -1,0 +1,135 @@
+.crmLayout {
+  min-height: 100vh;
+  display: flex;
+  background: transparent;
+}
+
+.crmSidebar {
+  width: 288px;
+  min-height: 100vh;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  background:
+    linear-gradient(180deg, rgba(13, 24, 41, 0.97), rgba(7, 17, 31, 0.94)),
+    radial-gradient(circle at top, rgba(184, 137, 59, 0.28), transparent 32%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 22px 0 60px rgba(3, 12, 28, 0.16);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+}
+
+.crmSidebarTop {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.crmBrand {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(184, 137, 59, 0.2), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crmNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.crmNavItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.84);
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+.crmNavItem::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  flex: 0 0 auto;
+}
+
+.crmNavItem:hover {
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateX(2px);
+}
+
+.crmNavItem.active {
+  background: linear-gradient(135deg, rgba(184, 137, 59, 0.25), rgba(20, 184, 166, 0.12));
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.crmNavItem.active::before {
+  background: #f2c46d;
+}
+
+.crmSidebarBottom {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.crmLogout {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 800;
+}
+
+.crmLogout:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.crmMain {
+  flex: 1;
+  padding: 1rem;
+}
+
+@media (max-width: 960px) {
+  .crmLayout {
+    flex-direction: column;
+  }
+
+  .crmSidebar {
+    width: 100%;
+    position: relative;
+    top: auto;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .crmNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .crmNavItem {
+    flex: 1 1 140px;
+    justify-content: center;
+  }
+}
