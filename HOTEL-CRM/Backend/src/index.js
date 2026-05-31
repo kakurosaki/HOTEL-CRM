@@ -88,6 +88,15 @@ let server;
 const shutdown = async (signal) => {
   console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
   clearInterval(roomStatusSyncTimer);
+  if (!server) {
+    try {
+      await pool.end();
+    } catch (e) {
+      console.error("Error during pool shutdown:", e);
+    }
+    process.exit(1);
+    return;
+  }
   server.close(async (err) => {
     if (err) {
       console.error("Error closing server:", err);

@@ -16,10 +16,10 @@ function Login({ onLoginSuccess }) {
 
     try {
       const response = await apiFetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: username, password: password }),
-    });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username, password: password }),
+      });
 
       const data = await response.json();
 
