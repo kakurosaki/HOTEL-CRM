@@ -57,7 +57,7 @@ router.get("/summary", async (_req, res) => {
     const [arrivalsTodayResult, departuresTodayResult, occupancyResult, pendingBookingsResult, housekeepingResult] = await Promise.all([
       pool.query("SELECT COUNT(*) AS count FROM bookings WHERE check_in_date = CURRENT_DATE"),
       pool.query("SELECT COUNT(*) AS count FROM bookings WHERE check_out_date = CURRENT_DATE"),
-      pool.query("SELECT COUNT(DISTINCT b.room_id) AS occupied FROM bookings b WHERE b.check_in_date <= CURRENT_DATE AND b.check_out_date >= CURRENT_DATE AND b.status IN ('confirmed','checked-in','pending')"),
+      pool.query("SELECT COUNT(*) AS occupied FROM rooms WHERE status = 'occupied'"),
       pool.query("SELECT COUNT(*) AS count FROM bookings WHERE status = 'pending'"),
       pool.query("SELECT COUNT(*) FILTER (WHERE status = 'cleaning') AS cleaning, COUNT(*) FILTER (WHERE status = 'maintenance') AS maintenance FROM rooms"),
     ]);

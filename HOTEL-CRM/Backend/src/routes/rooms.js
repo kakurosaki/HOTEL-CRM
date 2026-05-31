@@ -37,6 +37,7 @@ router.get("/stats", async (_req, res) => {
     const result = await pool.query(`
       SELECT 
         COUNT(CASE WHEN status = 'available' THEN 1 END) as available,
+        COUNT(CASE WHEN status = 'reserved' THEN 1 END) as reserved,
         COUNT(CASE WHEN status = 'occupied' THEN 1 END) as occupied,
         COUNT(CASE WHEN status = 'cleaning' THEN 1 END) as cleaning,
         COUNT(CASE WHEN status = 'maintenance' THEN 1 END) as maintenance,

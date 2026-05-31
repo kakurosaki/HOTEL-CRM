@@ -1,18 +1,8 @@
 import { pool } from "../db.js";
 import { recordAudit } from "./audit.js";
 
-const ACTIVE_BOOKING_STATUSES = ["confirmed", "pending", "checked-in"];
-const SYNCABLE_ROOM_STATUSES = ["available", "occupied"];
-
-const getActiveRoomSql = `
-  SELECT 1
-  FROM bookings
-  WHERE room_id = $1
-    AND status = ANY($2)
-    AND (check_in_date + check_in_time) <= CURRENT_TIMESTAMP
-    AND (check_out_date + check_out_time) > CURRENT_TIMESTAMP
-  LIMIT 1
-`;
+const BOOKING_STATUSES = ["confirmed", "pending", "checked-in"];
+const SYNCABLE_ROOM_STATUSES = ["available", "reserved", "occupied", "cleaning"];
 
 export const isBookingActiveNow = (booking) => {
   if (!booking) {
@@ -45,12 +35,49 @@ export const syncRoomStatusForRoom = async (client, roomId) => {
     return { updated: false, reason: "room-status-locked", room };
   }
 
-  const activeBookingResult = await client.query(
-    `SELECT EXISTS (${getActiveRoomSql}) AS active`,
-    [roomId, ACTIVE_BOOKING_STATUSES]
-  );
+  const [occupiedBookingResult, cleaningBookingResult, reservedBookingResult] = await Promise.all([
+    client.query(
+      `SELECT EXISTS (
+         SELECT 1
+         FROM bookings
+         WHERE room_id = $1
+           AND status = ANY($2)
+           AND (check_in_date + check_in_time) <= CURRENT_TIMESTAMP
+           AND (check_out_date + check_out_time) > CURRENT_TIMESTAMP
+       ) AS active`,
+      [roomId, BOOKING_STATUSES]
+    ),
+    client.query(
+      `SELECT EXISTS (
+         SELECT 1
+         FROM bookings
+         WHERE room_id = $1
+           AND status = ANY($2)
+           AND (check_out_date + check_out_time) <= CURRENT_TIMESTAMP
+           AND (check_out_date + check_out_time) > CURRENT_TIMESTAMP - INTERVAL '5 minutes'
+       ) AS cleaning`,
+      [roomId, BOOKING_STATUSES]
+    ),
+    client.query(
+      `SELECT EXISTS (
+         SELECT 1
+         FROM bookings
+         WHERE room_id = $1
+           AND status = ANY($2)
+           AND (check_in_date + check_in_time) > CURRENT_TIMESTAMP
+       ) AS reserved`,
+      [roomId, BOOKING_STATUSES]
+    ),
+  ]);
 
-  const nextStatus = activeBookingResult.rows[0].active ? "occupied" : "available";
+  let nextStatus = "available";
+  if (occupiedBookingResult.rows[0].active) {
+    nextStatus = "occupied";
+  } else if (cleaningBookingResult.rows[0].cleaning) {
+    nextStatus = "cleaning";
+  } else if (reservedBookingResult.rows[0].reserved) {
+    nextStatus = "reserved";
+  }
 
   if (room.status === nextStatus) {
     return { updated: false, room: { ...room, status: nextStatus } };
@@ -89,6 +116,44 @@ export const syncAllRoomStatuses = async () => {
     }
 
     return { updatedCount };
+  } finally {
+    client.release();
+  }
+};
+
+export const ensureRoomStatusSchema = async () => {
+  const client = await pool.connect();
+  try {
+    const constraintResult = await client.query(
+      `SELECT conname, pg_get_constraintdef(c.oid) AS definition
+       FROM pg_constraint c
+       JOIN pg_class rel ON rel.oid = c.conrelid
+       JOIN pg_namespace ns ON ns.oid = rel.relnamespace
+       WHERE rel.relname = 'rooms'
+         AND ns.nspname = current_schema()
+         AND c.contype = 'c'
+         AND pg_get_constraintdef(c.oid) ILIKE '%status%'`
+    );
+
+    const hasReserved = constraintResult.rows.some((row) => String(row.definition || "").includes("reserved"));
+    if (hasReserved) {
+      return { updated: false, reason: "already-updated" };
+    }
+
+    for (const row of constraintResult.rows) {
+      const constraintName = String(row.conname || "").replace(/"/g, '""');
+      if (constraintName) {
+        await client.query(`ALTER TABLE rooms DROP CONSTRAINT IF EXISTS "${constraintName}"`);
+      }
+    }
+
+    await client.query(
+      `ALTER TABLE rooms
+       ADD CONSTRAINT rooms_status_check
+       CHECK (status IN ('available', 'reserved', 'occupied', 'cleaning', 'maintenance'))`
+    );
+
+    return { updated: true };
   } finally {
     client.release();
   }

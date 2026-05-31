@@ -3,15 +3,17 @@ import { apiFetch } from "../utils/api";
 
 const statusColorMap = {
   available: { bg: "#10b981", text: "white", dot: "#10b981" },
+  reserved: { bg: "#3b82f6", text: "white", dot: "#3b82f6" },
   occupied: { bg: "#ef4444", text: "white", dot: "#ef4444" },
   cleaning: { bg: "#eab308", text: "white", dot: "#eab308" },
-  maintenance: { bg: "#f97316", text: "white", dot: "#f97316" }
+  maintenance: { bg: "#f97316", text: "white", dot: "#f97316" },
 };
 
 export default function RoomsPage({ staff }) {
   const [rooms, setRooms] = useState([]);
   const [stats, setStats] = useState({
     available: 0,
+    reserved: 0,
     occupied: 0,
     cleaning: 0,
     maintenance: 0,
@@ -36,9 +38,9 @@ export default function RoomsPage({ staff }) {
   });
 
   const types = ["All Types", "Standard", "Deluxe", "Suite", "Presidential"];
-  const statuses = ["All Status", "available", "occupied", "cleaning", "maintenance"];
+  const statuses = ["All Status", "available", "reserved", "occupied", "cleaning", "maintenance"];
   const roomTypes = ["Standard", "Deluxe", "Suite", "Presidential"];
-  const roomStatuses = ["available", "occupied", "cleaning", "maintenance"];
+  const roomStatuses = ["available", "reserved", "occupied", "cleaning", "maintenance"];
   const canManageRooms = staff?.role === "Admin";
 
   useEffect(() => {
@@ -312,7 +314,8 @@ export default function RoomsPage({ staff }) {
       </div>
 
       <div className="statGrid cols-4" style={{ marginBottom: "2rem" }}>
-        {["available", "occupied", "cleaning", "maintenance"].map((status) => (
+        {["available", "reserved", "occupied", "cleaning", "maintenance"].map((status) => (
+        {['available', 'reserved', 'occupied', 'cleaning', 'maintenance'].map((status) => (
           <div key={status} className="statCard">
             <div className="statLabel" style={{ textTransform: "capitalize" }}>
               {status}

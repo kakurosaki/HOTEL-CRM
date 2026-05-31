@@ -34,7 +34,7 @@ CREATE TABLE rooms (
   room_number VARCHAR(10) UNIQUE NOT NULL,
   room_type VARCHAR(50) NOT NULL CHECK (room_type IN ('Standard', 'Deluxe', 'Suite', 'Presidential')),
   price_per_night DECIMAL(10, 2) NOT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'occupied', 'cleaning', 'maintenance')),
+  status VARCHAR(50) NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'reserved', 'occupied', 'cleaning', 'maintenance')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

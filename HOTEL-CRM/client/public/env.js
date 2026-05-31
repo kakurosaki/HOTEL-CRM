@@ -7,6 +7,9 @@ window.__ENV__ = {
 };
 */
 window.__ENV__ = {
-  VITE_API_BASE_URL:
-    "http://3.67.84.34:5000"
+// Runtime env for the built frontend.
+// Using an empty string makes the app use relative URLs (recommended when
+// serving the site from the same CloudFront domain that also proxies /api/*).
+window.__ENV__ = {
+  VITE_API_BASE_URL: ""
 };
